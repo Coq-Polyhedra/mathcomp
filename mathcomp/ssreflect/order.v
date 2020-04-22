@@ -993,15 +993,13 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (Choice.class bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
 End ClassDef.
 
 Module Exports.
@@ -1173,16 +1171,14 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@POrder.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -1257,17 +1253,15 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@MeetSemilattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -1343,17 +1337,15 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@MeetSemilattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -1453,22 +1445,20 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@Lattice.class disp bT) b =>
   fun mT m & phant_id (@BSemilattice.class disp mT) (BSemilattice.Class m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
 Definition lattice_bSemilatticeType :=
-  @BSemilattice.Pack disp latticeType xclass.
+  @BSemilattice.Pack disp latticeType class.
 End ClassDef.
 
 Module Exports.
@@ -1554,20 +1544,18 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@BLattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -1669,18 +1657,16 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@Lattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -1741,26 +1727,24 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@DistrLattice.class disp bT) b =>
   fun mT m & phant_id (@BSemilattice.class disp mT) (BSemilattice.Class m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
 Definition bSemilattice_distrLatticeType :=
-  @DistrLattice.Pack disp bSemilatticeType xclass.
+  @DistrLattice.Pack disp bSemilatticeType class.
 Definition bLattice_distrLatticeType :=
-  @DistrLattice.Pack disp bLatticeType xclass.
+  @DistrLattice.Pack disp bLatticeType class.
 End ClassDef.
 
 Module Exports.
@@ -1816,8 +1800,6 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT (b : BDistrLattice.class_of T)
@@ -1825,19 +1807,19 @@ Definition pack :=
   fun mT m & phant_id (@TBLattice.class disp mT) (@TBLattice.Class _ b m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
-Definition tb_distrLatticeType := @DistrLattice.Pack disp tbLatticeType xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
+Definition tb_distrLatticeType := @DistrLattice.Pack disp tbLatticeType class.
 Definition tb_bDistrLatticeType :=
-  @BDistrLattice.Pack disp tbLatticeType xclass.
+  @BDistrLattice.Pack disp tbLatticeType class.
 End ClassDef.
 
 Module Exports.
@@ -1904,22 +1886,20 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@BDistrLattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
 End ClassDef.
 
 Module Exports.
@@ -2004,29 +1984,27 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c of phant_id class c := @Pack disp T c.
 Definition clone_with disp' c of phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@TBDistrLattice.class disp bT) b =>
   fun mT m0 & phant_id (@CBDistrLattice.class disp mT) (CBDistrLattice.Class m0) =>
   fun m1 => Pack disp (@Class T b m0 m1).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
-Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT xclass.
-Definition cbDistrLatticeType := @CBDistrLattice.Pack disp cT xclass.
-Definition cb_tbLatticeType := @TBLattice.Pack disp cbDistrLatticeType xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
+Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT class.
+Definition cbDistrLatticeType := @CBDistrLattice.Pack disp cT class.
+Definition cb_tbLatticeType := @TBLattice.Pack disp cbDistrLatticeType class.
 Definition cb_tbDistrLatticeType :=
-  @TBDistrLattice.Pack disp cbDistrLatticeType xclass.
+  @TBDistrLattice.Pack disp cbDistrLatticeType class.
 End ClassDef.
 
 Module Exports.
@@ -2119,19 +2097,17 @@ Variables (T : Type) (disp : unit) (cT : type disp).
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
 Definition clone c & phant_id class c := @Pack disp T c.
 Definition clone_with disp' c & phant_id class c := @Pack disp' T c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@DistrLattice.class disp bT) b =>
   fun m => Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
 
 End ClassDef.
 
@@ -2294,21 +2270,19 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@POrder.class disp bT) b =>
   fun mT m & phant_id (@Finite.class mT) (@Finite.Class _ _ m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition countType := @Countable.Pack cT xclass.
-Definition finType := @Finite.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition count_porderType := @POrder.Pack disp countType xclass.
-Definition fin_porderType := @POrder.Pack disp finType xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition countType := @Countable.Pack cT class.
+Definition finType := @Finite.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition count_porderType := @POrder.Pack disp countType class.
+Definition fin_porderType := @POrder.Pack disp finType class.
 End ClassDef.
 
 Module Exports.
@@ -2359,43 +2333,41 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@TBLattice.class disp bT) b =>
   fun mT m & phant_id (@Finite.class mT) (@Finite.Class _ _ m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition countType := @Countable.Pack cT xclass.
-Definition finType := @Finite.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition finPOrderType := @FinPOrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition countType := @Countable.Pack cT class.
+Definition finType := @Finite.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition finPOrderType := @FinPOrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
 Definition count_meetSemilatticeType :=
-  @MeetSemilattice.Pack disp countType xclass.
-Definition count_latticeType := @Lattice.Pack disp countType xclass.
-Definition count_bSemilatticeType := @BSemilattice.Pack disp countType xclass.
-Definition count_bLatticeType := @BLattice.Pack disp countType xclass.
-Definition count_tbLatticeType := @TBLattice.Pack disp countType xclass.
-Definition fin_meetSemilatticeType := @MeetSemilattice.Pack disp finType xclass.
-Definition fin_latticeType := @Lattice.Pack disp finType xclass.
-Definition fin_bSemilatticeType := @BSemilattice.Pack disp finType xclass.
-Definition fin_bLatticeType := @BLattice.Pack disp finType xclass.
-Definition fin_tbLatticeType := @TBLattice.Pack disp finType xclass.
+  @MeetSemilattice.Pack disp countType class.
+Definition count_latticeType := @Lattice.Pack disp countType class.
+Definition count_bSemilatticeType := @BSemilattice.Pack disp countType class.
+Definition count_bLatticeType := @BLattice.Pack disp countType class.
+Definition count_tbLatticeType := @TBLattice.Pack disp countType class.
+Definition fin_meetSemilatticeType := @MeetSemilattice.Pack disp finType class.
+Definition fin_latticeType := @Lattice.Pack disp finType class.
+Definition fin_bSemilatticeType := @BSemilattice.Pack disp finType class.
+Definition fin_bLatticeType := @BLattice.Pack disp finType class.
+Definition fin_tbLatticeType := @TBLattice.Pack disp finType class.
 Definition finPOrder_meetSemilatticeType :=
-  @MeetSemilattice.Pack disp finPOrderType xclass.
-Definition finPOrder_latticeType := @Lattice.Pack disp finPOrderType xclass.
+  @MeetSemilattice.Pack disp finPOrderType class.
+Definition finPOrder_latticeType := @Lattice.Pack disp finPOrderType class.
 Definition finPOrder_bSemilatticeType :=
-  @BSemilattice.Pack disp finPOrderType xclass.
-Definition finPOrder_bLatticeType := @BLattice.Pack disp finPOrderType xclass.
-Definition finPOrder_tbLatticeType := @TBLattice.Pack disp finPOrderType xclass.
+  @BSemilattice.Pack disp finPOrderType class.
+Definition finPOrder_bLatticeType := @BLattice.Pack disp finPOrderType class.
+Definition finPOrder_tbLatticeType := @TBLattice.Pack disp finPOrderType class.
 
 End ClassDef.
 
@@ -2471,48 +2443,46 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@TBDistrLattice.class disp bT) b =>
   fun mT m & phant_id (@Finite.class mT) (@Finite.Class _ _ m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition countType := @Countable.Pack cT xclass.
-Definition finType := @Finite.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition finPOrderType := @FinPOrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
-Definition finLatticeType := @FinLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
-Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT xclass.
-Definition count_distrLatticeType := @DistrLattice.Pack disp countType xclass.
-Definition count_bDistrLatticeType := @BDistrLattice.Pack disp countType xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition countType := @Countable.Pack cT class.
+Definition finType := @Finite.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition finPOrderType := @FinPOrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
+Definition finLatticeType := @FinLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
+Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT class.
+Definition count_distrLatticeType := @DistrLattice.Pack disp countType class.
+Definition count_bDistrLatticeType := @BDistrLattice.Pack disp countType class.
 Definition count_tbDistrLatticeType :=
-  @TBDistrLattice.Pack disp countType xclass.
-Definition fin_distrLatticeType := @DistrLattice.Pack disp finType xclass.
-Definition fin_bDistrLatticeType := @BDistrLattice.Pack disp finType xclass.
-Definition fin_tbDistrLatticeType := @TBDistrLattice.Pack disp finType xclass.
+  @TBDistrLattice.Pack disp countType class.
+Definition fin_distrLatticeType := @DistrLattice.Pack disp finType class.
+Definition fin_bDistrLatticeType := @BDistrLattice.Pack disp finType class.
+Definition fin_tbDistrLatticeType := @TBDistrLattice.Pack disp finType class.
 Definition finPOrder_distrLatticeType :=
-  @DistrLattice.Pack disp finPOrderType xclass.
+  @DistrLattice.Pack disp finPOrderType class.
 Definition finPOrder_bDistrLatticeType :=
-  @BDistrLattice.Pack disp finPOrderType xclass.
+  @BDistrLattice.Pack disp finPOrderType class.
 Definition finPOrder_tbDistrLatticeType :=
-  @TBDistrLattice.Pack disp finPOrderType xclass.
+  @TBDistrLattice.Pack disp finPOrderType class.
 Definition finLattice_distrLatticeType :=
-  @DistrLattice.Pack disp finLatticeType xclass.
+  @DistrLattice.Pack disp finLatticeType class.
 Definition finLattice_bDistrLatticeType :=
-  @BDistrLattice.Pack disp finLatticeType xclass.
+  @BDistrLattice.Pack disp finLatticeType class.
 Definition finLattice_tbDistrLatticeType :=
-  @TBDistrLattice.Pack disp finLatticeType xclass.
+  @TBDistrLattice.Pack disp finLatticeType class.
 
 End ClassDef.
 
@@ -2593,50 +2563,48 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@CTBDistrLattice.class disp bT) b =>
   fun mT m & phant_id (@Finite.class mT) (@Finite.Class _ _ m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition countType := @Countable.Pack cT xclass.
-Definition finType := @Finite.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition finPOrderType := @FinPOrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
-Definition finLatticeType := @FinLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
-Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT xclass.
-Definition finDistrLatticeType := @FinDistrLattice.Pack disp cT xclass.
-Definition cbDistrLatticeType := @CBDistrLattice.Pack disp cT xclass.
-Definition ctbDistrLatticeType := @CTBDistrLattice.Pack disp cT xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition countType := @Countable.Pack cT class.
+Definition finType := @Finite.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition finPOrderType := @FinPOrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
+Definition finLatticeType := @FinLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
+Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT class.
+Definition finDistrLatticeType := @FinDistrLattice.Pack disp cT class.
+Definition cbDistrLatticeType := @CBDistrLattice.Pack disp cT class.
+Definition ctbDistrLatticeType := @CTBDistrLattice.Pack disp cT class.
 Definition count_cbDistrLatticeType :=
-  @CBDistrLattice.Pack disp countType xclass.
+  @CBDistrLattice.Pack disp countType class.
 Definition count_ctbDistrLatticeType :=
-  @CTBDistrLattice.Pack disp countType xclass.
-Definition fin_cbDistrLatticeType := @CBDistrLattice.Pack disp finType xclass.
-Definition fin_ctbDistrLatticeType := @CTBDistrLattice.Pack disp finType xclass.
+  @CTBDistrLattice.Pack disp countType class.
+Definition fin_cbDistrLatticeType := @CBDistrLattice.Pack disp finType class.
+Definition fin_ctbDistrLatticeType := @CTBDistrLattice.Pack disp finType class.
 Definition finPOrder_cbDistrLatticeType :=
-  @CBDistrLattice.Pack disp finPOrderType xclass.
+  @CBDistrLattice.Pack disp finPOrderType class.
 Definition finPOrder_ctbDistrLatticeType :=
-  @CTBDistrLattice.Pack disp finPOrderType xclass.
+  @CTBDistrLattice.Pack disp finPOrderType class.
 Definition finLattice_cbDistrLatticeType :=
-  @CBDistrLattice.Pack disp finLatticeType xclass.
+  @CBDistrLattice.Pack disp finLatticeType class.
 Definition finLattice_ctbDistrLatticeType :=
-  @CTBDistrLattice.Pack disp finLatticeType xclass.
+  @CTBDistrLattice.Pack disp finLatticeType class.
 Definition finDistrLattice_cbDistrLatticeType :=
-  @CBDistrLattice.Pack disp finDistrLatticeType xclass.
+  @CBDistrLattice.Pack disp finDistrLatticeType class.
 Definition finDistrLattice_ctbDistrLatticeType :=
-  @CTBDistrLattice.Pack disp finDistrLatticeType xclass.
+  @CTBDistrLattice.Pack disp finDistrLatticeType class.
 
 End ClassDef.
 
@@ -2721,43 +2689,41 @@ Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (disp : unit) (cT : type disp).
 
 Definition class := let: Pack _ c as cT' := cT return class_of cT' in c.
-Let xT := let: Pack T _ := cT in T.
-Notation xclass := (class : class_of xT).
 
 Definition pack :=
   fun bT b & phant_id (@FinDistrLattice.class disp bT) b =>
   fun mT m & phant_id (@Total.class disp mT) (Total.Class m) =>
   Pack disp (@Class T b m).
 
-Definition eqType := @Equality.Pack cT xclass.
-Definition choiceType := @Choice.Pack cT xclass.
-Definition countType := @Countable.Pack cT xclass.
-Definition finType := @Finite.Pack cT xclass.
-Definition porderType := @POrder.Pack disp cT xclass.
-Definition finPOrderType := @FinPOrder.Pack disp cT xclass.
-Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT xclass.
-Definition bSemilatticeType := @BSemilattice.Pack disp cT xclass.
-Definition latticeType := @Lattice.Pack disp cT xclass.
-Definition bLatticeType := @BLattice.Pack disp cT xclass.
-Definition tbLatticeType := @TBLattice.Pack disp cT xclass.
-Definition finLatticeType := @FinLattice.Pack disp cT xclass.
-Definition distrLatticeType := @DistrLattice.Pack disp cT xclass.
-Definition bDistrLatticeType := @BDistrLattice.Pack disp cT xclass.
-Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT xclass.
-Definition finDistrLatticeType := @FinDistrLattice.Pack disp cT xclass.
-Definition orderType := @Total.Pack disp cT xclass.
-Definition order_countType := @Countable.Pack orderType xclass.
-Definition order_finType := @Finite.Pack orderType xclass.
-Definition order_finPOrderType := @FinPOrder.Pack disp orderType xclass.
-Definition order_bSemilatticeType := @BSemilattice.Pack disp orderType xclass.
-Definition order_bLatticeType := @BLattice.Pack disp orderType xclass.
-Definition order_tbLatticeType := @TBLattice.Pack disp orderType xclass.
-Definition order_finLatticeType := @FinLattice.Pack disp orderType xclass.
-Definition order_bDistrLatticeType := @BDistrLattice.Pack disp orderType xclass.
+Definition eqType := @Equality.Pack cT class.
+Definition choiceType := @Choice.Pack cT class.
+Definition countType := @Countable.Pack cT class.
+Definition finType := @Finite.Pack cT class.
+Definition porderType := @POrder.Pack disp cT class.
+Definition finPOrderType := @FinPOrder.Pack disp cT class.
+Definition meetSemilatticeType := @MeetSemilattice.Pack disp cT class.
+Definition bSemilatticeType := @BSemilattice.Pack disp cT class.
+Definition latticeType := @Lattice.Pack disp cT class.
+Definition bLatticeType := @BLattice.Pack disp cT class.
+Definition tbLatticeType := @TBLattice.Pack disp cT class.
+Definition finLatticeType := @FinLattice.Pack disp cT class.
+Definition distrLatticeType := @DistrLattice.Pack disp cT class.
+Definition bDistrLatticeType := @BDistrLattice.Pack disp cT class.
+Definition tbDistrLatticeType := @TBDistrLattice.Pack disp cT class.
+Definition finDistrLatticeType := @FinDistrLattice.Pack disp cT class.
+Definition orderType := @Total.Pack disp cT class.
+Definition order_countType := @Countable.Pack orderType class.
+Definition order_finType := @Finite.Pack orderType class.
+Definition order_finPOrderType := @FinPOrder.Pack disp orderType class.
+Definition order_bSemilatticeType := @BSemilattice.Pack disp orderType class.
+Definition order_bLatticeType := @BLattice.Pack disp orderType class.
+Definition order_tbLatticeType := @TBLattice.Pack disp orderType class.
+Definition order_finLatticeType := @FinLattice.Pack disp orderType class.
+Definition order_bDistrLatticeType := @BDistrLattice.Pack disp orderType class.
 Definition order_tbDistrLatticeType :=
-  @TBDistrLattice.Pack disp orderType xclass.
+  @TBDistrLattice.Pack disp orderType class.
 Definition order_finDistrLatticeType :=
-  @FinDistrLattice.Pack disp orderType xclass.
+  @FinDistrLattice.Pack disp orderType class.
 
 End ClassDef.
 
