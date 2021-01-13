@@ -271,17 +271,17 @@ From mathcomp Require Import path fintype tuple bigop finset div prime.
 (* MeetSemilatticeType T meet_mixin                                           *)
 (*      == builds a meetSemilatticeType from a canonical porderType instance  *)
 (*         of T where meet_mixin can be of types                              *)
-(*           meetSemilatticeMixin, latticePOrderMixin,                        *)
-(*           distrLatticePOrderMixin, meetJoinMixin, leOrderMixin,            *)
-(*           ltOrderMixin, totalPOrderMixin, totalJoinSemilatticeMixin,       *)
+(*           meetMixin, latticePOrderMixin, distrLatticePOrderMixin,          *)
+(*           meetJoinMixin, leOrderMixin, ltOrderMixin, totalPOrderMixin,     *)
+(*           totalJoinSemilatticeMixin,                                       *)
 (*         or computed using IsoLatticeMixin.                                 *)
 (*                                                                            *)
 (* JoinSemilatticeType T join_mixin                                           *)
 (*      == builds a joinSemilatticeType from a canonical porderType instance  *)
 (*         of T where join_mixin can be of types                              *)
-(*           joinSemilatticeMixin, latticePOrderMixin,                        *)
-(*           distrLatticePOrderMixin, meetJoinMixin, leOrderMixin,            *)
-(*           ltOrderMixin, totalPOrderMixin, totalMeetSemilatticeMixin,       *)
+(*           joinMixin, latticePOrderMixin, distrLatticePOrderMixin,          *)
+(*           meetJoinMixin, leOrderMixin, ltOrderMixin, totalPOrderMixin,     *)
+(*           totalMeetSemilatticeMixin,                                       *)
 (*         or computed using IsoLatticeMixin.                                 *)
 (*                                                                            *)
 (* DistrLatticeType T lat_mixin                                               *)
@@ -328,14 +328,14 @@ From mathcomp Require Import path fintype tuple bigop finset div prime.
 (*         irreflexivity and transitivity of lt.                              *)
 (*         (can build:  porderType)                                           *)
 (*                                                                            *)
-(* - meetSemilatticeMixin == on a porderType, takes meet,                     *)
-(*         commutativity and associativity of meet,                           *)
-(*         and a proof of (x <= y) = (meet x y == x) for any x, y.            *)
+(* - meetMixin == on a porderType, takes meet, commutativity and              *)
+(*         associativity of meet, and a proof of                              *)
+(*         (x <= y) = (meet x y == x) for any x, y.                           *)
 (*         (can build:  meetSemilatticeType)                                  *)
 (*                                                                            *)
-(* - joinSemilatticeMixin == on a porderType, takes join,                     *)
-(*         commutativity and associativity of join,                           *)
-(*         and a proof of (y <= x) = (join x y == x) for any x, y.            *)
+(* - joinMixin == on a porderType, takes join, commutativity and              *)
+(*         associativity of join, and a proof of                              *)
+(*         (y <= x) = (join x y == x) for any x, y.                           *)
 (*         (can build:  joinSemilatticeType)                                  *)
 (*                                                                            *)
 (* - latticePOrderMixin == on a porderType, takes meet, join,                 *)
@@ -1090,8 +1090,7 @@ Record mixin_of (T0 : Type) (b : Equality.class_of T0)
   lt_def    : forall x y, lt x y = (y != x) && (le x y);
   lt_def'   : forall x y, lt y x = (y != x) && (le y x); (* dual of lt_def *)
   lexx      : reflexive     le;
-  le_anti   : antisymmetric le;
-  le_anti'  : antisymmetric (fun x y => le y x); (* dual of le_anti *)
+  le_anti   : forall x y, le x y -> le y x -> x = y;
   le_trans  : transitive    le;
 }.
 
@@ -1379,7 +1378,7 @@ Definition dual_porderMixin :=
   @POrder.Mixin
     _ _ (fun x y : T => y <= x) (fun x y : T => y < x)
     (POrder.lt_def' mixin) (POrder.lt_def mixin) (POrder.lexx mixin)
-    (@POrder.le_anti' _ _ mixin) (@POrder.le_anti _ _ mixin)
+    (fun x y yx xy => @POrder.le_anti _ _ mixin x y xy yx)
     (fun _ _ _ xy yz => @POrder.le_trans _ _ mixin _ _ _ yz xy).
 
 Canonical dual_porderType :=
@@ -6371,10 +6370,9 @@ Hint Resolve lexx : core.
 
 Definition le_refl : reflexive le := lexx.
 Definition ge_refl : reflexive ge := lexx.
-Hint Resolve le_refl : core.
 
 Lemma le_anti: antisymmetric (<=%O : rel T).
-Proof. by case: T => ? [? []]. Qed.
+Proof. by case: T => ? [? [? ? ? ? ? le_anti ?]] ? ? /andP[/le_anti]. Qed.
 
 Lemma ge_anti: antisymmetric (>=%O : rel T).
 Proof. by move=> x y /le_anti. Qed.
@@ -6955,8 +6953,6 @@ Lemma comparable_bigr x x0 op I (P : pred I) F (s : seq I) :
 Proof. by move=> *; elim/big_ind : _. Qed.
 
 End POrderTheory.
-Hint Resolve comparable_minr comparable_minl : core.
-Hint Resolve comparable_maxr comparable_maxl : core.
 
 Section ContraTheory.
 Context {disp1 disp2 : unit} {T1 : porderType disp1} {T2 : porderType disp2}.
@@ -7201,8 +7197,8 @@ End TPOrderTheory.
 Hint Extern 0 (is_true (0 <= _)) => exact: le0x : core.
 Hint Extern 0 (is_true (_ <= 1)) => exact: lex1 : core.
 
-Module Import MeetSemilatticeTheory.
-Section MeetSemilatticeTheory.
+Module Import MeetTheory.
+Section MeetTheory.
 Context {disp : unit} {L : meetSemilatticeType disp}.
 Implicit Types (x y : L).
 
@@ -7275,108 +7271,97 @@ Proof. by rewrite meetC eq_meetl. Qed.
 Lemma leI2 x y z t : x <= z -> y <= t -> x `&` y <= z `&` t.
 Proof. by move=> xz yt; rewrite lexI !leIx2 ?xz ?yt ?orbT //. Qed.
 
-End MeetSemilatticeTheory.
-End MeetSemilatticeTheory.
+End MeetTheory.
+End MeetTheory.
 
 Arguments meet_idPl {disp L x y}.
+Arguments meet_idPr {disp L x y}.
 
-Module Import BMeetSemilatticeTheory.
-Section BMeetSemilatticeTheory.
+Module Import BMeetTheory.
+Section BMeetTheory.
 Context {disp : unit} {L : bMeetSemilatticeType disp}.
 
 Lemma meet0x : left_zero 0 (@meet _ L).
-Proof. by move=> x; apply/eqP; rewrite -leEmeet. Qed.
+Proof. by move=> x; apply/meet_idPl. Qed.
 
 Lemma meetx0 : right_zero 0 (@meet _ L).
-Proof. by move=> x; rewrite meetC meet0x. Qed.
+Proof. by move=> x; apply/meet_idPr. Qed.
 
 Canonical meet_muloid := Monoid.MulLaw meet0x meetx0.
 
-End BMeetSemilatticeTheory.
-End BMeetSemilatticeTheory.
+End BMeetTheory.
+End BMeetTheory.
 
-Module Import TMeetSemilatticeTheory.
-Section TMeetSemilatticeTheory.
+Module Import TMeetTheory.
+Section TMeetTheory.
 Context {disp : unit} {L : tMeetSemilatticeType disp}.
 Implicit Types (I : finType) (T : eqType) (x y : L).
 
 Lemma meetx1 : right_id 1 (@meet _ L).
-Proof. by move=> x; apply/eqP; rewrite -leEmeet. Qed.
+Proof. by move=> x; apply/meet_idPl. Qed.
 
 Lemma meet1x : left_id 1 (@meet _ L).
-Proof. by move=> x; rewrite meetC meetx1. Qed.
+Proof. by move=> x; apply/meet_idPr. Qed.
 
 Lemma meet_eq1 x y : (x `&` y == 1) = (x == 1) && (y == 1).
 Proof. by rewrite !eq_le !lex1 /= lexI. Qed.
 
-Canonical meet_monoid := Monoid.Law (@meetA _ _) meet1x meetx1.
-Canonical meet_comoid := Monoid.ComLaw (@meetC _ _).
-
-Lemma meets_inf I (j : I) (P : {pred I}) (F : I -> L) :
-  P j -> \meet_(i | P i) F i <= F j.
-Proof. by move=> Pj; rewrite (bigD1 j) //= leIx2 ?lexx. Qed.
-
-Lemma meets_max I (j : I) (u : L) (P : {pred I}) (F : I -> L) :
-  P j -> F j <= u -> \meet_(i | P i) F i <= u.
-Proof. by move=> Pj; apply/le_trans/meets_inf. Qed.
-
-Lemma meetsP I (l : L) (P : {pred I}) (F : I -> L) :
-  reflect (forall i : I, P i -> l <= F i) (l <= \meet_(i | P i) F i).
-Proof.
-have ->: l <= \meet_(i | P i) F i = \big[andb/true]_(i | P i) (l <= F i).
-  by elim/big_rec2: _ => [|i y b Pi <-]; rewrite ?lex1 ?lexI.
-rewrite big_all_cond; apply: (iffP allP) => /= H i;
-have := H i _; rewrite mem_index_enum; last by move/implyP->.
-by move/(_ isT)/implyP.
-Qed.
+Canonical meet_monoid := Monoid.Law meetA meet1x meetx1.
+Canonical meet_comoid := Monoid.ComLaw meetC.
 
 Lemma meet_inf_seq T (r : seq T) (P : {pred T}) (F : T -> L) (x : T) :
   x \in r -> P x -> \meet_(i <- r | P i) F i <= F x.
-Proof. by case/seq_tnthP=> j -> Px; rewrite big_tnth meets_inf. Qed.
+Proof. by move=> xr Px; rewrite (big_rem x) ?Px //= leIl. Qed.
 
 Lemma meet_max_seq T (r : seq T) (P : {pred T}) (F : T -> L) (x : T) (u : L) :
   x \in r -> P x -> F x <= u -> \meet_(x <- r | P x) F x <= u.
 Proof. by move=> ? ?; apply/le_trans/meet_inf_seq. Qed.
 
+Lemma meets_inf I (j : I) (P : {pred I}) (F : I -> L) :
+  P j -> \meet_(i | P i) F i <= F j.
+Proof. exact/meet_inf_seq/mem_index_enum. Qed.
+
+Lemma meets_max I (j : I) (u : L) (P : {pred I}) (F : I -> L) :
+  P j -> F j <= u -> \meet_(i | P i) F i <= u.
+Proof. exact/meet_max_seq/mem_index_enum. Qed.
+
 Lemma meetsP_seq T (r : seq T) (P : {pred T}) (F : T -> L) (l : L) :
   reflect (forall x : T, x \in r -> P x -> l <= F x)
           (l <= \meet_(x <- r | P x) F x).
 Proof.
-rewrite big_tnth; apply: (iffP (meetsP _ _ _)) => /= F_le.
-  by move=> x /seq_tnthP[i ->]; apply: F_le.
-by move=> i /F_le->//; rewrite mem_tnth.
+apply: (iffP idP) => leFm => [x xr Px|].
+  exact/(le_trans leFm)/meet_inf_seq.
+rewrite big_seq_cond; elim/big_rec: _ => //= i x /andP[ir Pi] lx.
+by rewrite lexI lx leFm.
 Qed.
+
+Lemma meetsP I (l : L) (P : {pred I}) (F : I -> L) :
+  reflect (forall i : I, P i -> l <= F i) (l <= \meet_(i | P i) F i).
+Proof. by apply: (iffP (meetsP_seq _ _ _ _)) => H ? ?; apply: H. Qed.
 
 Lemma le_meets I (A B : {set I}) (F : I -> L) :
   A \subset B -> \meet_(i in B) F i <= \meet_(i in A) F i.
-Proof.
-move=> AsubB; rewrite -(setID B A).
-rewrite [X in X <= _](eq_bigl [predU B :&: A & B :\: A]); last first.
-  by move=> i; rewrite !inE.
-rewrite bigU //=; last by rewrite -setI_eq0 setDE setIACA setICr setI0.
-by rewrite leIx2 // (setIidPr _) // lexx.
-Qed.
+Proof. by move=> /subsetP AB; apply/meetsP => i iA; apply/meets_inf/AB. Qed.
 
 Lemma meets_setU I (A B : {set I}) (F : I -> L) :
   \meet_(i in (A :|: B)) F i = \meet_(i in A) F i `&` \meet_(i in B) F i.
 Proof.
-apply/eqP; rewrite eq_le lexI !le_meets ?subsetUl ?subsetUr ?andbT //.
-apply/meetsP => i; rewrite inE.
-by case/orP=> ?; rewrite leIx2 //; [rewrite meets_inf | rewrite orbC meets_inf].
+rewrite -!big_enum; have /= <- := @big_cat _ _ meet_comoid.
+apply/eq_big_idem; first exact: meetxx.
+by move=> ?; rewrite mem_cat !mem_enum inE.
 Qed.
 
 Lemma meet_seq I (r : seq I) (F : I -> L) :
   \meet_(i <- r) F i = \meet_(i in r) F i.
 Proof.
-rewrite -big_undup /=; last exact: meetxx.
-by rewrite big_uniq ?undup_uniq // -!big_enum (eq_enum (mem_undup _)).
+by rewrite -big_enum; apply/eq_big_idem => ?; rewrite /= ?meetxx ?mem_enum.
 Qed.
 
-End TMeetSemilatticeTheory.
-End TMeetSemilatticeTheory.
+End TMeetTheory.
+End TMeetTheory.
 
-Module Import JoinSemilatticeTheory.
-Section JoinSemilatticeTheory.
+Module Import JoinTheory.
+Section JoinTheory.
 Context {disp : unit} {L : joinSemilatticeType disp}.
 Let Ld := [meetSemilatticeType of L^d].
 Implicit Types (x y : L).
@@ -7430,13 +7415,14 @@ Proof. exact: (@eq_meetr _ Ld). Qed.
 Lemma leU2 x y z t : x <= z -> y <= t -> x `|` y <= z `|` t.
 Proof. exact: (@leI2 _ Ld). Qed.
 
-End JoinSemilatticeTheory.
-End JoinSemilatticeTheory.
+End JoinTheory.
+End JoinTheory.
 
 Arguments join_idPl {disp L x y}.
+Arguments join_idPr {disp L x y}.
 
-Module Import BJoinSemilatticeTheory.
-Section BJoinSemilatticeTheory.
+Module Import BJoinTheory.
+Section BJoinTheory.
 Context {disp : unit} {L : bJoinSemilatticeType disp}.
 Let Ld := [tMeetSemilatticeType of L^d].
 Implicit Types (I : finType) (T : eqType) (x y : L).
@@ -7447,20 +7433,8 @@ Lemma join0x : left_id 0 (@join _ L). Proof. exact: (@meet1x _ Ld). Qed.
 Lemma join_eq0 x y : (x `|` y == 0) = (x == 0) && (y == 0).
 Proof. exact: (@meet_eq1 _ Ld). Qed.
 
-Canonical join_monoid := Monoid.Law (@joinA _ _) join0x joinx0.
-Canonical join_comoid := Monoid.ComLaw (@joinC _ _).
-
-Lemma join_sup I (j : I) (P : {pred I}) (F : I -> L) :
-  P j -> F j <= \join_(i | P i) F i.
-Proof. exact: (@meets_inf _ Ld). Qed.
-
-Lemma join_min I (j : I) (l : L) (P : {pred I}) (F : I -> L) :
-  P j -> l <= F j -> l <= \join_(i | P i) F i.
-Proof. exact: (@meets_max _ Ld). Qed.
-
-Lemma joinsP I (u : L) (P : {pred I}) (F : I -> L) :
-  reflect (forall i : I, P i -> F i <= u) (\join_(i | P i) F i <= u).
-Proof. exact: (@meetsP _ Ld). Qed.
+Canonical join_monoid := Monoid.Law joinA join0x joinx0.
+Canonical join_comoid := Monoid.ComLaw joinC.
 
 Lemma join_sup_seq T (r : seq T) (P : {pred T}) (F : T -> L) (x : T) :
   x \in r -> P x -> F x <= \join_(i <- r | P i) F i.
@@ -7470,10 +7444,22 @@ Lemma join_min_seq T (r : seq T) (P : {pred T}) (F : T -> L) (x : T) (l : L) :
   x \in r -> P x -> l <= F x -> l <= \join_(x <- r | P x) F x.
 Proof. exact: (@meet_max_seq _ Ld). Qed.
 
+Lemma join_sup I (j : I) (P : {pred I}) (F : I -> L) :
+  P j -> F j <= \join_(i | P i) F i.
+Proof. exact: (@meets_inf _ Ld). Qed.
+
+Lemma join_min I (j : I) (l : L) (P : {pred I}) (F : I -> L) :
+  P j -> l <= F j -> l <= \join_(i | P i) F i.
+Proof. exact: (@meets_max _ Ld). Qed.
+
 Lemma joinsP_seq T (r : seq T) (P : {pred T}) (F : T -> L) (u : L) :
   reflect (forall x : T, x \in r -> P x -> F x <= u)
           (\join_(x <- r | P x) F x <= u).
 Proof. exact: (@meetsP_seq _ Ld). Qed.
+
+Lemma joinsP I (u : L) (P : {pred I}) (F : I -> L) :
+  reflect (forall i : I, P i -> F i <= u) (\join_(i | P i) F i <= u).
+Proof. exact: (@meetsP _ Ld). Qed.
 
 Lemma le_joins I (A B : {set I}) (F : I -> L) :
   A \subset B -> \join_(i in A) F i <= \join_(i in B) F i.
@@ -7487,11 +7473,11 @@ Lemma join_seq I (r : seq I) (F : I -> L) :
   \join_(i <- r) F i = \join_(i in r) F i.
 Proof. exact: (@meet_seq _ Ld). Qed.
 
-End BJoinSemilatticeTheory.
-End BJoinSemilatticeTheory.
+End BJoinTheory.
+End BJoinTheory.
 
-Module Import TJoinSemilatticeTheory.
-Section TJoinSemilatticeTheory.
+Module Import TJoinTheory.
+Section TJoinTheory.
 Context {disp : unit} {L : tJoinSemilatticeType disp}.
 Let Ld := [bMeetSemilatticeType of L^d].
 
@@ -7500,8 +7486,8 @@ Lemma join1x : left_zero 1 (@join _ L). Proof. exact: (@meet0x _ Ld). Qed.
 
 Canonical join_muloid := Monoid.MulLaw join1x joinx1.
 
-End TJoinSemilatticeTheory.
-End TJoinSemilatticeTheory.
+End TJoinTheory.
+End TJoinTheory.
 
 Module Import LatticeTheory.
 Section LatticeTheory.
@@ -7573,6 +7559,86 @@ Proof. by move=> x y z; rewrite ![x `|` _]joinC joinIl. Qed.
 
 End DistrLatticeTheory.
 End DistrLatticeTheory.
+
+Module Import BDistrLatticeTheory.
+Section BDistrLatticeTheory.
+Context {disp : unit} {L : bDistrLatticeType disp}.
+Implicit Types (I : finType) (T : eqType) (x y z : L).
+Local Notation "0" := bottom.
+(* Distributive lattice theory with 0 *)
+
+Canonical join_addoid := Monoid.AddLaw (@meetUl _ L) (@meetUr _ _).
+
+Lemma leU2l_le y t x z : x `&` t = 0 -> x `|` y <= z `|` t -> x <= z.
+Proof.
+by move=> xIt0 /(leI2 (lexx x)); rewrite joinKI meetUr xIt0 joinx0 leIidl.
+Qed.
+
+Lemma leU2r_le y t x z : x `&` t = 0 -> y `|` x <= t `|` z -> x <= z.
+Proof. by rewrite joinC [_ `|` z]joinC => /leU2l_le H /H. Qed.
+
+Lemma disjoint_lexUl z x y : x `&` z = 0 -> (x <= y `|` z) = (x <= y).
+Proof.
+move=> xz0; apply/idP/idP=> xy; last by rewrite lexU2 ?xy.
+by apply: (@leU2l_le x z); rewrite ?joinxx.
+Qed.
+
+Lemma disjoint_lexUr z x y : x `&` z = 0 -> (x <= z `|` y) = (x <= y).
+Proof. by move=> xz0; rewrite joinC; rewrite disjoint_lexUl. Qed.
+
+Lemma leU2E x y z t : x `&` t = 0 -> y `&` z = 0 ->
+  (x `|` y <= z `|` t) = (x <= z) && (y <= t).
+Proof.
+move=> dxt dyz; apply/idP/andP; last by case=> ? ?; exact: leU2.
+by move=> lexyzt; rewrite (leU2l_le _ lexyzt) // (leU2r_le _ lexyzt).
+Qed.
+
+Lemma joins_disjoint I (d : L) (P : {pred I}) (F : I -> L) :
+   (forall i : I, P i -> d `&` F i = 0) -> d `&` \join_(i | P i) F i = 0.
+Proof.
+move=> d_Fi_disj; have : \big[andb/true]_(i | P i) (d `&` F i == 0).
+  rewrite big_all_cond; apply/allP => i _ /=.
+  by apply/implyP => /d_Fi_disj ->.
+elim/big_rec2: _ => [|i y]; first by rewrite meetx0.
+case; rewrite (andbF, andbT) // => Pi /(_ isT) dy /eqP dFi.
+by rewrite meetUr dy dFi joinxx.
+Qed.
+
+End BDistrLatticeTheory.
+End BDistrLatticeTheory.
+
+Module Import TDistrLatticeTheory.
+Section TDistrLatticeTheory.
+Context {disp : unit} {L : tDistrLatticeType disp}.
+Let Ld := [bDistrLatticeType of L^d].
+Implicit Types (I : finType) (T : eqType) (x y : L).
+Local Notation "1" := top.
+(* Distributive lattice theory with 1 *)
+
+Canonical meet_addoid := Monoid.AddLaw (@joinIl _ L) (@joinIr _ _).
+
+Lemma leI2l_le y t x z : y `|` z = 1 -> x `&` y <= z `&` t -> x <= z.
+Proof. rewrite joinC; exact: (@leU2l_le _ Ld). Qed.
+
+Lemma leI2r_le y t x z : y `|` z = 1 -> y `&` x <= t `&` z -> x <= z.
+Proof. rewrite joinC; exact: (@leU2r_le _ Ld). Qed.
+
+Lemma cover_leIxl z x y : z `|` y = 1 -> (x `&` z <= y) = (x <= y).
+Proof. rewrite joinC; exact: (@disjoint_lexUl _ Ld). Qed.
+
+Lemma cover_leIxr z x y : z `|` y = 1 -> (z `&` x <= y) = (x <= y).
+Proof. rewrite joinC; exact: (@disjoint_lexUr _ Ld). Qed.
+
+Lemma leI2E x y z t : x `|` t = 1 -> y `|` z = 1 ->
+  (x `&` y <= z `&` t) = (x <= z) && (y <= t).
+Proof. by move=> ? ?; apply: (@leU2E _ Ld); rewrite meetC. Qed.
+
+Lemma meets_total I (d : L) (P : {pred I}) (F : I -> L) :
+   (forall i : I, P i -> d `|` F i = 1) -> d `|` \meet_(i | P i) F i = 1.
+Proof. exact: (@joins_disjoint _ Ld). Qed.
+
+End TDistrLatticeTheory.
+End TDistrLatticeTheory.
 
 Module Import TotalTheory.
 Section TotalTheory.
@@ -7889,86 +7955,6 @@ Proof. exact: total_homo_mono_in. Qed.
 End TotalMonotonyTheory.
 End TotalTheory.
 
-Module Import BDistrLatticeTheory.
-Section BDistrLatticeTheory.
-Context {disp : unit} {L : bDistrLatticeType disp}.
-Implicit Types (I : finType) (T : eqType) (x y z : L).
-Local Notation "0" := bottom.
-(* Distributive lattice theory with 0 *)
-
-Canonical join_addoid := Monoid.AddLaw (@meetUl _ L) (@meetUr _ _).
-
-Lemma leU2l_le y t x z : x `&` t = 0 -> x `|` y <= z `|` t -> x <= z.
-Proof.
-by move=> xIt0 /(leI2 (lexx x)); rewrite joinKI meetUr xIt0 joinx0 leIidl.
-Qed.
-
-Lemma leU2r_le y t x z : x `&` t = 0 -> y `|` x <= t `|` z -> x <= z.
-Proof. by rewrite joinC [_ `|` z]joinC => /leU2l_le H /H. Qed.
-
-Lemma disjoint_lexUl z x y : x `&` z = 0 -> (x <= y `|` z) = (x <= y).
-Proof.
-move=> xz0; apply/idP/idP=> xy; last by rewrite lexU2 ?xy.
-by apply: (@leU2l_le x z); rewrite ?joinxx.
-Qed.
-
-Lemma disjoint_lexUr z x y : x `&` z = 0 -> (x <= z `|` y) = (x <= y).
-Proof. by move=> xz0; rewrite joinC; rewrite disjoint_lexUl. Qed.
-
-Lemma leU2E x y z t : x `&` t = 0 -> y `&` z = 0 ->
-  (x `|` y <= z `|` t) = (x <= z) && (y <= t).
-Proof.
-move=> dxt dyz; apply/idP/andP; last by case=> ? ?; exact: leU2.
-by move=> lexyzt; rewrite (leU2l_le _ lexyzt) // (leU2r_le _ lexyzt).
-Qed.
-
-Lemma joins_disjoint I (d : L) (P : {pred I}) (F : I -> L) :
-   (forall i : I, P i -> d `&` F i = 0) -> d `&` \join_(i | P i) F i = 0.
-Proof.
-move=> d_Fi_disj; have : \big[andb/true]_(i | P i) (d `&` F i == 0).
-  rewrite big_all_cond; apply/allP => i _ /=.
-  by apply/implyP => /d_Fi_disj ->.
-elim/big_rec2: _ => [|i y]; first by rewrite meetx0.
-case; rewrite (andbF, andbT) // => Pi /(_ isT) dy /eqP dFi.
-by rewrite meetUr dy dFi joinxx.
-Qed.
-
-End BDistrLatticeTheory.
-End BDistrLatticeTheory.
-
-Module Import TDistrLatticeTheory.
-Section TDistrLatticeTheory.
-Context {disp : unit} {L : tDistrLatticeType disp}.
-Let Ld := [bDistrLatticeType of L^d].
-Implicit Types (I : finType) (T : eqType) (x y : L).
-Local Notation "1" := top.
-(* Distributive lattice theory with 1 *)
-
-Canonical meet_addoid := Monoid.AddLaw (@joinIl _ L) (@joinIr _ _).
-
-Lemma leI2l_le y t x z : y `|` z = 1 -> x `&` y <= z `&` t -> x <= z.
-Proof. rewrite joinC; exact: (@leU2l_le _ Ld). Qed.
-
-Lemma leI2r_le y t x z : y `|` z = 1 -> y `&` x <= t `&` z -> x <= z.
-Proof. rewrite joinC; exact: (@leU2r_le _ Ld). Qed.
-
-Lemma cover_leIxl z x y : z `|` y = 1 -> (x `&` z <= y) = (x <= y).
-Proof. rewrite joinC; exact: (@disjoint_lexUl _ Ld). Qed.
-
-Lemma cover_leIxr z x y : z `|` y = 1 -> (z `&` x <= y) = (x <= y).
-Proof. rewrite joinC; exact: (@disjoint_lexUr _ Ld). Qed.
-
-Lemma leI2E x y z t : x `|` t = 1 -> y `|` z = 1 ->
-  (x `&` y <= z `&` t) = (x <= z) && (y <= t).
-Proof. by move=> ? ?; apply: (@leU2E _ Ld); rewrite meetC. Qed.
-
-Lemma meets_total I (d : L) (P : {pred I}) (F : I -> L) :
-   (forall i : I, P i -> d `|` F i = 1) -> d `|` \meet_(i | P i) F i = 1.
-Proof. exact: (@joins_disjoint _ Ld). Qed.
-
-End TDistrLatticeTheory.
-End TDistrLatticeTheory.
-
 Module Import CBDistrLatticeTheory.
 Section CBDistrLatticeTheory.
 Context {disp : unit} {L : cbDistrLatticeType disp}.
@@ -8237,12 +8223,12 @@ Variable (m : of_).
 Lemma lt_def' (x y : T) : lt m y x = (y != x) && le m y x.
 Proof. by rewrite lt_def eq_sym. Qed.
 
-Lemma le_anti' : antisymmetric (fun x : T => (le m)^~ x).
-Proof. by move=> ? ? /le_anti ->. Qed.
+Lemma le_anti' x y : le m x y -> le m y x -> x = y.
+Proof. by move=> ? ?; apply/(@le_anti m)/andP. Qed.
 
 Definition porderMixin :=
-  @POrder.Mixin _ _ (le m) (lt m)
-                (lt_def m) lt_def' (lexx m) (@le_anti m) le_anti' (@le_trans m).
+  @POrder.Mixin
+    _ _ (le m) (lt m) (lt_def m) lt_def' (lexx m) le_anti' (@le_trans m).
 
 End LePOrderMixin.
 
@@ -8300,8 +8286,8 @@ End Exports.
 End TopMixin.
 Import TopMixin.Exports.
 
-Module MeetSemilatticeMixin.
-Section MeetSemilatticeMixin.
+Module MeetMixin.
+Section MeetMixin.
 Variable (disp : unit) (T : porderType disp).
 
 Record of_ := Build {
@@ -8311,22 +8297,22 @@ Record of_ := Build {
   leEmeet : forall x y, (x <= y) = (meet x y == x);
 }.
 
-Definition meetSemilatticeMixin (m : of_) :=
+Definition meetMixin (m : of_) :=
   @MeetSemilattice.Mixin _ _ (meet m) (meetC m) (meetA m) (leEmeet m).
 
-End MeetSemilatticeMixin.
+End MeetMixin.
 
 Module Exports.
-Coercion meetSemilatticeMixin : of_ >-> MeetSemilattice.mixin_of.
-Notation meetSemilatticeMixin := of_.
-Notation MeetSemilatticeMixin := Build.
+Coercion meetMixin : of_ >-> MeetSemilattice.mixin_of.
+Notation meetMixin := of_.
+Notation MeetMixin := Build.
 End Exports.
 
-End MeetSemilatticeMixin.
-Import MeetSemilatticeMixin.Exports.
+End MeetMixin.
+Import MeetMixin.Exports.
 
-Module JoinSemilatticeMixin.
-Section JoinSemilatticeMixin.
+Module JoinMixin.
+Section JoinMixin.
 Variable (disp : unit) (T : porderType disp).
 
 Record of_ := Build {
@@ -8336,21 +8322,21 @@ Record of_ := Build {
   leEjoin : forall x y, (y <= x) = (join x y == x);
 }.
 
-Definition joinSemilatticeMixin (m : of_) :
+Definition joinMixin (m : of_) :
   JoinSemilattice.mixin_of (POrder.class T) :=
   @MeetSemilattice.Mixin _ (POrder.class [porderType of T^d])
                          (join m) (joinC m) (joinA m) (leEjoin m).
 
-End JoinSemilatticeMixin.
+End JoinMixin.
 
 Module Exports.
-Coercion joinSemilatticeMixin : of_ >-> JoinSemilattice.mixin_of.
-Notation joinSemilatticeMixin := of_.
-Notation JoinSemilatticeMixin := Build.
+Coercion joinMixin : of_ >-> JoinSemilattice.mixin_of.
+Notation joinMixin := of_.
+Notation JoinMixin := Build.
 End Exports.
 
-End JoinSemilatticeMixin.
-Import JoinSemilatticeMixin.Exports.
+End JoinMixin.
+Import JoinMixin.Exports.
 
 Module DistrLatticeMixin.
 Section DistrLatticeMixin.
@@ -8464,8 +8450,7 @@ Record of_ := Build {
 
 Variable (m : of_).
 
-Definition meetSemilatticeMixin :=
-  @MeetSemilatticeMixin _ _ (meet m) (meetC m) (meetA m) (leEmeet m).
+Definition meetMixin := @MeetMixin _ _ (meet m) (meetC m) (meetA m) (leEmeet m).
 
 Lemma leEjoin x y : (y <= x) = (join m x y == x).
 Proof.
@@ -8474,16 +8459,15 @@ rewrite (leEmeet m); apply/eqP/eqP => <-.
 by rewrite (joinC m) (joinKI m).
 Qed.
 
-Definition joinSemilatticeMixin :=
-  @JoinSemilatticeMixin _ _ (join m) (joinC m) (joinA m) leEjoin.
+Definition joinMixin := @JoinMixin _ _ (join m) (joinC m) (joinA m) leEjoin.
 
 End LatticePOrderMixin.
 
 Module Exports.
 Notation latticePOrderMixin := of_.
 Notation LatticePOrderMixin := Build.
-Coercion meetSemilatticeMixin : of_ >-> MeetSemilatticeMixin.of_.
-Coercion joinSemilatticeMixin : of_ >-> JoinSemilatticeMixin.of_.
+Coercion meetMixin : of_ >-> MeetMixin.of_.
+Coercion joinMixin : of_ >-> JoinMixin.of_.
 Definition LatticeOfPOrder disp (T : porderType disp) (m : of_ T) :
   latticeType disp :=
   [latticeType of JoinSemilatticeType (MeetSemilatticeType T m) m].
@@ -8601,8 +8585,7 @@ Qed.
 Fact leEmeet x y : (x <= y) = (meet x y == x).
 Proof. by rewrite /meet; case: leP => ?; rewrite ?eqxx ?lt_eqF. Qed.
 
-Definition meetSemilatticeMixin :=
-  @MeetSemilatticeMixin _ T _ meetC meetA leEmeet.
+Definition meetMixin := @MeetMixin _ T _ meetC meetA leEmeet.
 
 Definition join := @max _ T.
 
@@ -8620,11 +8603,11 @@ Qed.
 Fact leEjoin x y : (y <= x) = (join x y == x).
 Proof. by rewrite /join; case: leP => ?; rewrite ?eqxx ?gt_eqF. Qed.
 
-Definition joinSemilatticeMixin := @JoinSemilatticeMixin _ T _ joinC joinA leEjoin.
+Definition joinMixin := @JoinMixin _ T _ joinC joinA leEjoin.
 
 Let T_latticeType :=
-  [latticeType of JoinSemilatticeType (MeetSemilatticeType T meetSemilatticeMixin)
-                                      joinSemilatticeMixin].
+  [latticeType of JoinSemilatticeType (MeetSemilatticeType T meetMixin)
+                                      joinMixin].
 
 Definition totalLatticeMixin : totalLatticeMixin T_latticeType := m.
 
@@ -8632,8 +8615,8 @@ End TotalPOrderMixin.
 
 Module Exports.
 Notation totalPOrderMixin := of_.
-Coercion meetSemilatticeMixin : of_ >-> MeetSemilatticeMixin.of_.
-Coercion joinSemilatticeMixin : of_ >-> JoinSemilatticeMixin.of_.
+Coercion meetMixin : of_ >-> MeetMixin.of_.
+Coercion joinMixin : of_ >-> JoinMixin.of_.
 Coercion totalLatticeMixin : of_ >-> TotalLatticeMixin.of_.
 Definition OrderOfPOrder disp (T : porderType disp) (m : of_ T) :
   orderType disp := OrderOfLattice m.
@@ -8649,11 +8632,9 @@ Definition of_ := total (<=%O : rel T).
 
 Variable (m : of_).
 
-Definition joinSemilatticeMixin : joinSemilatticeMixin T :=
-  (m : totalPOrderMixin T).
+Definition joinMixin : joinMixin T := (m : totalPOrderMixin T).
 
-Let T_latticeType :=
-  [latticeType of JoinSemilatticeType T joinSemilatticeMixin].
+Let T_latticeType := [latticeType of JoinSemilatticeType T joinMixin].
 
 Definition totalLatticeMixin : totalLatticeMixin T_latticeType := m.
 
@@ -8661,7 +8642,7 @@ End TotalMeetSemilatticeMixin.
 
 Module Exports.
 Notation totalMeetSemilatticeMixin := of_.
-Coercion joinSemilatticeMixin : of_ >-> JoinSemilatticeMixin.of_.
+Coercion joinMixin : of_ >-> JoinMixin.of_.
 Coercion totalLatticeMixin : of_ >-> TotalLatticeMixin.of_.
 Definition OrderOfMeetSemilattice
            disp (T : meetSemilatticeType disp) (m : of_ T) : orderType disp :=
@@ -8678,11 +8659,9 @@ Definition of_ := total (<=%O : rel T).
 
 Variable (m : of_).
 
-Definition meetSemilatticeMixin : meetSemilatticeMixin T :=
-  (m : totalPOrderMixin T).
+Definition meetMixin : meetMixin T := (m : totalPOrderMixin T).
 
-Let T_latticeType :=
-  [latticeType of MeetSemilatticeType T meetSemilatticeMixin].
+Let T_latticeType := [latticeType of MeetSemilatticeType T meetMixin].
 
 Definition totalLatticeMixin : totalLatticeMixin T_latticeType := m.
 
@@ -8690,7 +8669,7 @@ End TotalJoinSemilatticeMixin.
 
 Module Exports.
 Notation totalJoinSemilatticeMixin := of_.
-Coercion meetSemilatticeMixin : of_ >-> MeetSemilatticeMixin.of_.
+Coercion meetMixin : of_ >-> MeetMixin.of_.
 Coercion totalLatticeMixin : of_ >-> TotalLatticeMixin.of_.
 Definition OrderOfJoinSemilattice
            disp (T : joinSemilatticeType disp) (m : of_ T) : orderType disp :=
@@ -9071,8 +9050,7 @@ Proof. by move=> y x z; rewrite /meet !f'_can meetA. Qed.
 Lemma meet_eql x y : (x <= y) = (meet x y == x).
 Proof. by rewrite /meet -(can_eq f_can) f'_can eq_meetl f_mono. Qed.
 
-Definition IsoMeetSemilattice :=
-  @MeetSemilatticeMixin _ T _ meetC meetA meet_eql.
+Definition IsoMeetSemilattice := @MeetMixin _ T _ meetC meetA meet_eql.
 
 End MeetSemilattice.
 
@@ -9092,8 +9070,7 @@ Proof. by move=> y x z; rewrite /join !f'_can joinA. Qed.
 Lemma join_eql x y : (y <= x) = (join x y == x).
 Proof. by rewrite /join -(can_eq f_can) f'_can eq_joinl f_mono. Qed.
 
-Definition IsoJoinSemilattice :=
-  @JoinSemilatticeMixin _ T _ joinC joinA join_eql.
+Definition IsoJoinSemilattice := @JoinMixin _ T _ joinC joinA join_eql.
 
 End JoinSemilattice.
 
@@ -9124,8 +9101,8 @@ Notation PcanPOrderMixin := PcanPOrder.
 Notation CanPOrderMixin := CanPOrder.
 Notation PcanOrderMixin := PcanOrder.
 Notation CanOrderMixin := CanOrder.
-Notation IsoMeetSemilatticeMixin := IsoMeetSemilattice.
-Notation IsoJoinSemilatticeMixin := IsoJoinSemilattice.
+Notation IsoMeetMixin := IsoMeetSemilattice.
+Notation IsoJoinMixin := IsoJoinSemilattice.
 Notation IsoDistrLatticeMixin := IsoDistrLattice.
 End Exports.
 End CanMixin.
@@ -9951,9 +9928,8 @@ Proof. by move=> ? ? ?; congr pair; rewrite meetA. Qed.
 Fact leEmeet x y : (x <= y) = (meet x y == x).
 Proof. by rewrite eqE /= -!leEmeet. Qed.
 
-Definition meetSemilatticeMixin := MeetSemilatticeMixin meetC meetA leEmeet.
-Canonical meetSemilatticeType :=
-  MeetSemilatticeType (T * T') meetSemilatticeMixin.
+Definition meetMixin := MeetMixin meetC meetA leEmeet.
+Canonical meetSemilatticeType := MeetSemilatticeType (T * T') meetMixin.
 
 Lemma meetEprod x y : x `&` y = (x.1 `&` y.1, x.2 `&` y.2). Proof. by []. Qed.
 
@@ -9985,9 +9961,8 @@ Proof. by move=> ? ? ?; congr pair; rewrite joinA. Qed.
 Fact leEjoin x y : (y <= x) = (join x y == x).
 Proof. by rewrite eqE /= !eq_joinl. Qed.
 
-Definition joinSemilatticeMixin := JoinSemilatticeMixin joinC joinA leEjoin.
-Canonical joinSemilatticeType :=
-  JoinSemilatticeType (T * T') joinSemilatticeMixin.
+Definition joinMixin := JoinMixin joinC joinA leEjoin.
+Canonical joinSemilatticeType := JoinSemilatticeType (T * T') joinMixin.
 
 Lemma joinEprod x y : x `|` y = (x.1 `|` y.1, x.2 `|` y.2). Proof. by []. Qed.
 
@@ -10897,9 +10872,8 @@ Proof.
 by rewrite /<=%O /=; elim: x y => [|? ? ih] [|? ?] //=; rewrite eqE leEmeet ih.
 Qed.
 
-Definition meetSemilatticeMixin := MeetSemilatticeMixin meetC meetA leEmeet.
-Canonical meetSemilatticeType :=
-  MeetSemilatticeType (seq T) meetSemilatticeMixin.
+Definition meetMixin := MeetMixin meetC meetA leEmeet.
+Canonical meetSemilatticeType := MeetSemilatticeType (seq T) meetMixin.
 Canonical bMeetSemilatticeType := [bMeetSemilatticeType of seq T].
 
 Lemma meetEseq s1 s2 : s1 `&` s2 =  [seq x.1 `&` x.2 | x <- zip s1 s2].
@@ -10933,9 +10907,8 @@ elim: x y => [|? ? ih] [|? ?]; rewrite /<=%O ?eqxx //=.
 by rewrite eqE /= eq_joinl [le _ _]ih.
 Qed.
 
-Definition joinSemilatticeMixin := JoinSemilatticeMixin joinC joinA leEjoin.
-Canonical joinSemilatticeType :=
-  JoinSemilatticeType (seq T) joinSemilatticeMixin.
+Definition joinMixin := JoinMixin joinC joinA leEjoin.
+Canonical joinSemilatticeType := JoinSemilatticeType (seq T) joinMixin.
 Canonical bJoinSemilatticeType := [bJoinSemilatticeType of seq T].
 
 Lemma joinEseq s1 s2 : s1 `|` s2 =
@@ -11351,9 +11324,8 @@ rewrite leEtprod eqEtuple; apply: eq_forallb => /= i.
 by rewrite tnth_meet leEmeet.
 Qed.
 
-Definition meetSemilatticeMixin := MeetSemilatticeMixin meetC meetA leEmeet.
-Canonical meetSemilatticeType :=
-  MeetSemilatticeType (n.-tuple T) meetSemilatticeMixin.
+Definition meetMixin := MeetMixin meetC meetA leEmeet.
+Canonical meetSemilatticeType := MeetSemilatticeType (n.-tuple T) meetMixin.
 
 Lemma meetEtprod t1 t2 :
   t1 `&` t2 = [tuple of [seq x.1 `&` x.2 | x <- zip t1 t2]].
@@ -11395,9 +11367,8 @@ rewrite leEtprod eqEtuple; apply: eq_forallb => /= i.
 by rewrite tnth_join eq_joinl.
 Qed.
 
-Definition joinSemilatticeMixin := JoinSemilatticeMixin joinC joinA leEjoin.
-Canonical joinSemilatticeType :=
-  JoinSemilatticeType (n.-tuple T) joinSemilatticeMixin.
+Definition joinMixin := JoinMixin joinC joinA leEjoin.
+Canonical joinSemilatticeType := JoinSemilatticeType (n.-tuple T) joinMixin.
 
 Lemma joinEtprod t1 t2 :
   t1 `|` t2 = [tuple of [seq x.1 `|` x.2 | x <- zip t1 t2]].
@@ -12034,12 +12005,12 @@ Export DualOrder.
 Export POrderTheory.
 Export BPOrderTheory.
 Export TPOrderTheory.
-Export MeetSemilatticeTheory.
-Export BMeetSemilatticeTheory.
-Export TMeetSemilatticeTheory.
-Export JoinSemilatticeTheory.
-Export BJoinSemilatticeTheory.
-Export TJoinSemilatticeTheory.
+Export MeetTheory.
+Export BMeetTheory.
+Export TMeetTheory.
+Export JoinTheory.
+Export BJoinTheory.
+Export TJoinTheory.
 Export LatticeTheory.
 Export DistrLatticeTheory.
 Export BDistrLatticeTheory.
@@ -12107,8 +12078,8 @@ Export Order.FinTBTotal.Exports.
 Export Order.LePOrderMixin.Exports.
 Export Order.BottomMixin.Exports.
 Export Order.TopMixin.Exports.
-Export Order.MeetSemilatticeMixin.Exports.
-Export Order.JoinSemilatticeMixin.Exports.
+Export Order.MeetMixin.Exports.
+Export Order.JoinMixin.Exports.
 Export Order.DistrLatticeMixin.Exports.
 Export Order.CBDistrLatticeMixin.Exports.
 Export Order.CTBDistrLatticeMixin.Exports.
