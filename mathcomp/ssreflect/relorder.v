@@ -68,19 +68,16 @@ Notation class_of := mixin_of (only parsing).
 Structure order (phT : phant T) := Pack {
   le : rel T;
   lt : rel T;
-  #[canonical=no] class_ : class_of le lt;
+  class : class_of le lt;
 }.
 
 Unset Primitive Projections.
 
-Variable (phT : phant T) (ord : order phT).
+Variable (phT : phant T) (ord : order phT) (leT ltT : rel T).
 
-Definition class : class_of (le ord) (lt ord) :=
-  let: Pack _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Variable (leT ltT : rel T).
-
-Definition clone c of phant_id class c := @Pack phT leT ltT c.
+Definition clone c of phant_id cls c := @Pack phT leT ltT (nosimpl c).
 
 End ClassDef.
 
@@ -89,7 +86,7 @@ Notation class_of := mixin_of (only parsing).
 Module Exports.
 Notation "{ 'pOrder' T }" := (order (Phant T))
   (at level 0, format "{ 'pOrder'  T }").
-Notation POrder le lt mixin := (@Pack _ (Phant _) le lt mixin).
+Notation POrder le lt mixin := (@Pack _ (Phant _) le lt (nosimpl mixin)).
 Notation "[ 'leo:' leT ]" :=
   (@clone _ (Phant _) _ leT _ _ id) (at level 0, format "[ 'leo:'  leT ]").
 Notation "[ 'lto:' ltT ]" :=
@@ -138,7 +135,7 @@ Structure order (phT : phant T) := Pack {
   le : rel T;
   lt : rel T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt bottom;
+  class : class_of le lt bottom;
 }.
 
 Unset Primitive Projections.
@@ -147,20 +144,19 @@ Local Coercion base : class_of >-> POrder.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (bottom ord) :=
-  let: Pack _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
 
 Variable (leT ltT : rel T) (bottomT : T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT bottomT c.
+Definition clone c of phant_id cls c := @Pack phT leT ltT bottomT (nosimpl c).
 
 Definition pack (b0 : POrder.class_of leT ltT)
                 (m0 : mixin_of (POrder.Pack _ b0) bottomT) :=
   fun (b : POrder.class_of leT ltT)            & phant_id b0 b =>
   fun (m : mixin_of (POrder.Pack _ b) bottomT) & phant_id m0 m =>
-  @Pack phT leT ltT bottomT (Class m).
+  @Pack phT leT ltT bottomT (nosimpl (Class m)).
 
 End ClassDef.
 
@@ -203,7 +199,7 @@ Structure order (phT : phant T) := Pack {
   le : rel T;
   lt : rel T;
   top : T;
-  #[canonical=no] class_ : class_of le lt top;
+  class : class_of le lt top;
 }.
 
 Unset Primitive Projections.
@@ -212,20 +208,19 @@ Local Coercion base : class_of >-> POrder.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (top ord) :=
-  let: Pack _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
 
 Variable (leT ltT : rel T) (topT : T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT topT c.
+Definition clone c of phant_id cls c := @Pack phT leT ltT topT (nosimpl c).
 
 Definition pack (b0 : POrder.class_of leT ltT)
                 (m0 : mixin_of (POrder.Pack _ b0) topT) :=
   fun (b : POrder.class_of leT ltT)         & phant_id b0 b =>
   fun (m : mixin_of (POrder.Pack _ b) topT) & phant_id m0 m =>
-  @Pack phT leT ltT topT (Class m).
+  @Pack phT leT ltT topT (nosimpl (Class m)).
 
 End ClassDef.
 
@@ -267,7 +262,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt bottom top;
+  class : class_of le lt bottom top;
 }.
 
 Unset Primitive Projections.
@@ -278,16 +273,15 @@ Local Coercion base2 le lt bottom top (c : class_of le lt bottom top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 (* NB: [nosimpl] is needed to let the [Canonical] command ignore a field.     *)
 Definition bP_tPOrder :=
   @TPOrder.Pack _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder)
-                ((* hack! *) nosimpl (top ord)) class.
+                ((* hack! *) nosimpl (top ord)) cls.
 
 Variable (leT ltT : rel T) (bottomT topT : T).
 
@@ -296,7 +290,7 @@ Definition pack :=
       & phant_id (BPOrder.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -343,7 +337,7 @@ Structure order (phT : phant T) := Pack {
   le : rel T;
   lt : rel T;
   meet : T -> T -> T;
-  #[canonical=no] class_ : class_of le lt meet;
+  class : class_of le lt meet;
 }.
 
 Unset Primitive Projections.
@@ -352,20 +346,19 @@ Local Coercion base : class_of >-> POrder.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) :=
-  let: Pack _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
 
 Variable (leT ltT : rel T) (meetT : T -> T -> T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT meetT c.
+Definition clone c of phant_id cls c := @Pack phT leT ltT meetT (nosimpl c).
 
 Definition pack (b0 : POrder.class_of leT ltT)
                 (m0 : mixin_of (POrder.Pack _ b0) meetT) :=
   fun (b : POrder.class_of leT ltT)          & phant_id b0 b =>
   fun (m : mixin_of (POrder.Pack _ b) meetT) & phant_id m0 m =>
-  @Pack phT leT ltT meetT (Class m).
+  @Pack phT leT ltT meetT (nosimpl (Class m)).
 
 End ClassDef.
 
@@ -407,7 +400,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   meet : T -> T -> T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt meet bottom;
+  class : class_of le lt meet bottom;
 }.
 
 Unset Primitive Projections.
@@ -418,15 +411,14 @@ Local Coercion base2 le lt meet bottom (c : class_of le lt meet bottom) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (bottom ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bP_meetOrder :=
   @Meet.Pack
-    _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder) (nosimpl (meet ord)) class.
+    _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder) (nosimpl (meet ord)) cls.
 
 Variable (leT ltT : rel T) (meetT : T -> T -> T) (bottomT : T).
 
@@ -435,7 +427,7 @@ Definition pack :=
       & phant_id (Meet.class bord) b =>
   fun (mord : BPOrder.order phT) m
       & phant_id (BPOrder.class mord) (BPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT bottomT (Class (base := b) m).
+  @Pack phT leT ltT meetT bottomT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -477,7 +469,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   meet : T -> T -> T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet top;
+  class : class_of le lt meet top;
 }.
 
 Unset Primitive Projections.
@@ -488,15 +480,14 @@ Local Coercion base2 le lt meet top (c : class_of le lt meet top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (top ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition tP_meetOrder :=
   @Meet.Pack
-    _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder) (nosimpl (meet ord)) class.
+    _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder) (nosimpl (meet ord)) cls.
 
 Variable (leT ltT : rel T) (meetT : T -> T -> T) (topT : T).
 
@@ -505,7 +496,7 @@ Definition pack :=
       & phant_id (Meet.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -548,7 +539,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet bottom top;
+  class : class_of le lt meet bottom top;
 }.
 
 Unset Primitive Projections.
@@ -563,38 +554,36 @@ Local Coercion base3 le lt meet bottom top
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 Definition tbPOrder :=
-  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
 Definition bP_tMeetOrder :=
   @TMeet.Pack _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder)
-              (nosimpl (meet ord)) (nosimpl (top ord)) class.
+              (nosimpl (meet ord)) (nosimpl (top ord)) cls.
 Definition tP_bMeetOrder :=
   @BMeet.Pack _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder)
-              (nosimpl (meet ord)) (nosimpl (bottom ord)) class.
+              (nosimpl (meet ord)) (nosimpl (bottom ord)) cls.
 Definition tbP_meetOrder :=
   @Meet.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-             (nosimpl (meet ord)) class.
+             (nosimpl (meet ord)) cls.
 Definition tbP_bMeetOrder :=
   @BMeet.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-              (nosimpl (meet ord)) (TBPOrder.bottom tbPOrder) class.
+              (nosimpl (meet ord)) (TBPOrder.bottom tbPOrder) cls.
 Definition tbP_tMeetOrder :=
   @TMeet.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-              (nosimpl (meet ord)) (TBPOrder.top tbPOrder) class.
+              (nosimpl (meet ord)) (TBPOrder.top tbPOrder) cls.
 Definition bMeet_tMeetOrder :=
   @TMeet.Pack _ phT (BMeet.le bMeetOrder) (BMeet.lt bMeetOrder)
-              (BMeet.meet bMeetOrder) (nosimpl (top ord)) class.
+              (BMeet.meet bMeetOrder) (nosimpl (top ord)) cls.
 
 Variable (leT ltT : rel T) (meetT : T -> T -> T) (bottomT topT : T).
 
@@ -603,7 +592,7 @@ Definition pack :=
       & phant_id (BMeet.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -661,7 +650,7 @@ Structure order (phT : phant T) := Pack {
   le : rel T;
   lt : rel T;
   join : T -> T -> T;
-  #[canonical=no] class_ : class_of le lt join;
+  class : class_of le lt join;
 }.
 
 Unset Primitive Projections.
@@ -670,20 +659,19 @@ Local Coercion base : class_of >-> POrder.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (join ord) :=
-  let: Pack _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
 
 Variable (leT ltT : rel T) (joinT : T -> T -> T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT joinT c.
+Definition clone c of phant_id cls c := @Pack phT leT ltT joinT (nosimpl c).
 
 Definition pack (b0 : POrder.class_of leT ltT)
                 (m0 : mixin_of (POrder.Pack _ b0) joinT) :=
   fun (b : POrder.class_of leT ltT)          & phant_id b0 b =>
   fun (m : mixin_of (POrder.Pack _ b) joinT) & phant_id m0 m =>
-  @Pack phT leT ltT joinT (Class m).
+  @Pack phT leT ltT joinT (nosimpl (Class m)).
 
 End ClassDef.
 
@@ -725,7 +713,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   join : T -> T -> T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt join bottom;
+  class : class_of le lt join bottom;
 }.
 
 Unset Primitive Projections.
@@ -736,15 +724,14 @@ Local Coercion base2 le lt join bottom (c : class_of le lt join bottom) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (join ord) (bottom ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bP_joinOrder :=
   @Join.Pack
-    _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder) (nosimpl (join ord)) class.
+    _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder) (nosimpl (join ord)) cls.
 
 Variable (leT ltT : rel T) (joinT : T -> T -> T) (bottomT : T).
 
@@ -753,7 +740,7 @@ Definition pack :=
       & phant_id (Join.class bord) b =>
   fun (mord : BPOrder.order phT) m
       & phant_id (BPOrder.class mord) (BPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT joinT bottomT (Class (base := b) m).
+  @Pack phT leT ltT joinT bottomT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -795,7 +782,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   join : T -> T -> T;
   top : T;
-  #[canonical=no] class_ : class_of le lt join top;
+  class : class_of le lt join top;
 }.
 
 Unset Primitive Projections.
@@ -806,15 +793,14 @@ Local Coercion base2 le lt join top (c : class_of le lt join top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (join ord) (top ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition tP_joinOrder :=
   @Join.Pack
-    _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder) (nosimpl (join ord)) class.
+    _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder) (nosimpl (join ord)) cls.
 
 Variable (leT ltT : rel T) (joinT : T -> T -> T) (topT : T).
 
@@ -823,7 +809,7 @@ Definition pack :=
       & phant_id (Join.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT joinT topT (Class (base := b) m).
+  @Pack phT leT ltT joinT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -866,7 +852,7 @@ Structure order (phT : phant T) := Pack {
   join : T -> T -> T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt join bottom top;
+  class : class_of le lt join bottom top;
 }.
 
 Unset Primitive Projections.
@@ -882,38 +868,36 @@ Local Coercion base3 le lt join bottom top
 Variable (phT : phant T).
 Variable (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (join ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 Definition tbPOrder :=
-  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition bP_tJoinOrder :=
   @TJoin.Pack _ phT (BPOrder.le bPOrder) (BPOrder.lt bPOrder)
-              (nosimpl (join ord)) (nosimpl (top ord)) class.
+              (nosimpl (join ord)) (nosimpl (top ord)) cls.
 Definition tP_bJoinOrder :=
   @BJoin.Pack _ phT (TPOrder.le tPOrder) (TPOrder.lt tPOrder)
-              (nosimpl (join ord)) (nosimpl (bottom ord)) class.
+              (nosimpl (join ord)) (nosimpl (bottom ord)) cls.
 Definition tbP_joinOrder :=
   @Join.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-             (nosimpl (join ord)) class.
+             (nosimpl (join ord)) cls.
 Definition tbP_bJoinOrder :=
   @BJoin.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-              (nosimpl (join ord)) (TBPOrder.bottom tbPOrder) class.
+              (nosimpl (join ord)) (TBPOrder.bottom tbPOrder) cls.
 Definition tbP_tJoinOrder :=
   @TJoin.Pack _ phT (TBPOrder.le tbPOrder) (TBPOrder.lt tbPOrder)
-              (nosimpl (join ord)) (TBPOrder.top tbPOrder) class.
+              (nosimpl (join ord)) (TBPOrder.top tbPOrder) cls.
 Definition bJoin_tJoinOrder :=
   @TJoin.Pack _ phT (BJoin.le bJoinOrder) (BJoin.lt bJoinOrder)
-              (BJoin.join bJoinOrder) (nosimpl (top ord)) class.
+              (BJoin.join bJoinOrder) (nosimpl (top ord)) cls.
 
 Variable (leT ltT : rel T) (joinT : T -> T -> T) (bottomT topT : T).
 
@@ -922,7 +906,7 @@ Definition pack :=
       & phant_id (BJoin.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT joinT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT joinT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -979,7 +963,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   meet : T -> T -> T;
   join : T -> T -> T;
-  #[canonical=no] class_ : class_of le lt meet join;
+  class : class_of le lt meet join;
 }.
 
 Unset Primitive Projections.
@@ -990,15 +974,14 @@ Local Coercion base2 le lt meet join (c : class_of le lt meet join) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition meet_joinOrder :=
   @Join.Pack
-    _ phT (Meet.le meetOrder) (Meet.lt meetOrder) (nosimpl (join ord)) class.
+    _ phT (Meet.le meetOrder) (Meet.lt meetOrder) (nosimpl (join ord)) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T).
 
@@ -1007,7 +990,7 @@ Definition pack :=
       & phant_id (Meet.class bord) b =>
   fun (mord : Join.order phT) m
       & phant_id (Join.class mord) (Join.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1051,7 +1034,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom;
+  class : class_of le lt meet join bottom;
 }.
 
 Unset Primitive Projections.
@@ -1066,38 +1049,36 @@ Local Coercion base3 le lt meet join bottom
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition meet_bJoinOrder :=
   @BJoin.Pack _ phT (Meet.le meetOrder) (Meet.lt meetOrder)
-              (nosimpl (join ord)) (nosimpl (bottom ord)) class.
+              (nosimpl (join ord)) (nosimpl (bottom ord)) cls.
 Definition join_bMeetOrder :=
   @BMeet.Pack _ phT (Join.le joinOrder) (Join.lt joinOrder)
-              (nosimpl (meet ord)) (nosimpl (bottom ord)) class.
+              (nosimpl (meet ord)) (nosimpl (bottom ord)) cls.
 Definition bMeet_bJoinOrder :=
   @BJoin.Pack _ phT (BMeet.le bMeetOrder) (BMeet.lt bMeetOrder)
-              (nosimpl (join ord)) (BMeet.bottom bMeetOrder) class.
+              (nosimpl (join ord)) (BMeet.bottom bMeetOrder) cls.
 Definition lattice_bPOrder :=
   @BPOrder.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-                (nosimpl (bottom ord)) class.
+                (nosimpl (bottom ord)) cls.
 Definition lattice_bMeetOrder :=
   @BMeet.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-              (Lattice.meet lattice) (nosimpl (bottom ord)) class.
+              (Lattice.meet lattice) (nosimpl (bottom ord)) cls.
 Definition lattice_bJoinOrder :=
   @BJoin.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-              (Lattice.join lattice) (nosimpl (bottom ord)) class.
+              (Lattice.join lattice) (nosimpl (bottom ord)) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT : T).
 
@@ -1106,7 +1087,7 @@ Definition pack :=
       & phant_id (Lattice.class bord) b =>
   fun (mord : BPOrder.order phT) m
       & phant_id (BPOrder.class mord) (BPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1165,7 +1146,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join top;
+  class : class_of le lt meet join top;
 }.
 
 Unset Primitive Projections.
@@ -1178,37 +1159,36 @@ Local Coercion base3 le lt meet join top (c : class_of le lt meet join top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) (top ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition meet_tJoinOrder :=
   @TJoin.Pack _ phT (Meet.le meetOrder) (Meet.lt meetOrder)
-              (nosimpl (join ord)) (nosimpl (top ord)) class.
+              (nosimpl (join ord)) (nosimpl (top ord)) cls.
 Definition join_tMeetOrder :=
   @TMeet.Pack _ phT (Join.le joinOrder) (Join.lt joinOrder)
-              (nosimpl (meet ord)) (nosimpl (top ord)) class.
+              (nosimpl (meet ord)) (nosimpl (top ord)) cls.
 Definition tMeet_tJoinOrder :=
   @TJoin.Pack _ phT (TMeet.le tMeetOrder) (TMeet.lt tMeetOrder)
-              (nosimpl (join ord)) (TMeet.top tMeetOrder) class.
+              (nosimpl (join ord)) (TMeet.top tMeetOrder) cls.
 Definition lattice_tPOrder :=
   @TPOrder.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-                (nosimpl (top ord)) class.
+                (nosimpl (top ord)) cls.
 Definition lattice_tMeetOrder :=
   @TMeet.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-              (Lattice.meet lattice) (nosimpl (top ord)) class.
+              (Lattice.meet lattice) (nosimpl (top ord)) cls.
 Definition lattice_tJoinOrder :=
   @TJoin.Pack _ phT (Lattice.le lattice) (Lattice.lt lattice)
-              (Lattice.join lattice) (nosimpl (top ord)) class.
+              (Lattice.join lattice) (nosimpl (top ord)) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (topT : T).
 
@@ -1217,7 +1197,7 @@ Definition pack :=
       & phant_id (Lattice.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1277,7 +1257,7 @@ Structure order (phT : phant T) := Pack {
   join : T -> T -> T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom top;
+  class : class_of le lt meet join bottom top;
 }.
 
 Unset Primitive Projections.
@@ -1295,36 +1275,34 @@ Local Coercion base4 le lt meet join bottom top
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 Definition tbPOrder :=
-  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
 Definition tbMeetOrder :=
-  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition tbJoinOrder :=
-  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) class.
+  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bLattice :=
   @BLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tLattice :=
-  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 (* TODO: non-trivial joins are missing below. *)
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT topT : T).
@@ -1335,7 +1313,7 @@ Definition pack :=
       & phant_id (BLattice.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1408,7 +1386,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   meet : T -> T -> T;
   join : T -> T -> T;
-  #[canonical=no] class_ : class_of le lt meet join;
+  class : class_of le lt meet join;
 }.
 
 Unset Primitive Projections.
@@ -1417,24 +1395,24 @@ Local Coercion base : class_of >-> Lattice.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT meetT joinT c.
+Definition clone c of phant_id cls c :=
+  @Pack phT leT ltT meetT joinT (nosimpl c).
 
 Definition pack (b0 : Lattice.class_of leT ltT meetT joinT)
                 (m0 : mixin_of (Lattice.Pack _ b0)) :=
   fun (b : Lattice.class_of leT ltT meetT joinT) & phant_id b0 b =>
   fun (m : mixin_of (Lattice.Pack _ b))          & phant_id m0 m =>
-  @Pack phT leT ltT meetT joinT (Class m).
+  @Pack phT leT ltT meetT joinT (nosimpl (Class m)).
 
 End ClassDef.
 
@@ -1481,7 +1459,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom;
+  class : class_of le lt meet join bottom;
 }.
 
 Unset Primitive Projections.
@@ -1493,25 +1471,23 @@ Local Coercion base2 le lt meet join bottom
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bLattice :=
   @BLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT : T).
 
@@ -1521,7 +1497,7 @@ Definition pack :=
       & phant_id (DistrLattice.class bord) b =>
   fun (mord : BPOrder.order phT) m
       & phant_id (BPOrder.class mord) (BPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1577,7 +1553,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join top;
+  class : class_of le lt meet join top;
 }.
 
 Unset Primitive Projections.
@@ -1588,23 +1564,22 @@ Local Coercion base2 le lt meet join top (c : class_of le lt meet join top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) (top ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition tLattice :=
-  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (topT : T).
 
@@ -1614,7 +1589,7 @@ Definition pack :=
       & phant_id (DistrLattice.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1671,7 +1646,7 @@ Structure order (phT : phant T) := Pack {
   join : T -> T -> T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom top;
+  class : class_of le lt meet join bottom top;
 }.
 
 Unset Primitive Projections.
@@ -1688,47 +1663,45 @@ Local Coercion base3 le lt meet join bottom top
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 Definition tbPOrder :=
-  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
 Definition tbMeetOrder :=
-  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition tbJoinOrder :=
-  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) class.
+  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bLattice :=
   @BLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tLattice :=
-  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition tbLattice :=
   @TBLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bDistrLattice :=
   @BDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tDistrLattice :=
   @TDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT topT : T).
 
@@ -1738,7 +1711,7 @@ Definition pack :=
       & phant_id (BDistrLattice.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -1817,7 +1790,7 @@ Structure order (phT : phant T) := Pack {
   lt : rel T;
   meet : T -> T -> T;
   join : T -> T -> T;
-  #[canonical=no] class_ : class_of le lt meet join;
+  class : class_of le lt meet join;
 }.
 
 Unset Primitive Projections.
@@ -1826,26 +1799,26 @@ Local Coercion base : class_of >-> DistrLattice.class_of.
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) :=
-  let: Pack _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T).
 
-Definition clone c of phant_id class c := @Pack phT leT ltT meetT joinT c.
+Definition clone c of phant_id cls c :=
+  @Pack phT leT ltT meetT joinT (nosimpl c).
 
 Definition pack (m0 : total leT) :=
   fun (bord : DistrLattice.order phT) b
         & phant_id (DistrLattice.class bord) b =>
   fun m & phant_id m0 m =>
-  @Pack phT leT ltT meetT joinT (@Class leT ltT meetT joinT b m).
+  @Pack phT leT ltT meetT joinT (nosimpl (@Class leT ltT meetT joinT b m)).
 
 End ClassDef.
 
@@ -1895,7 +1868,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   bottom : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom;
+  class : class_of le lt meet join bottom;
 }.
 
 Unset Primitive Projections.
@@ -1908,30 +1881,28 @@ Local Coercion base2 le lt meet join bottom
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bLattice :=
   @BLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bDistrLattice :=
   @BDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition totalOrder :=
-  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT : T).
 
@@ -1940,7 +1911,7 @@ Definition pack :=
       & phant_id (Total.class bord) b =>
   fun (mord : BPOrder.order phT) m
       & phant_id (BPOrder.class mord) (BPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -2000,7 +1971,7 @@ Structure order (phT : phant T) := Pack {
   meet : T -> T -> T;
   join : T -> T -> T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join top;
+  class : class_of le lt meet join top;
 }.
 
 Unset Primitive Projections.
@@ -2012,28 +1983,27 @@ Local Coercion base2 le lt meet join top (c : class_of le lt meet join top) :
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class : class_of (le ord) (lt ord) (meet ord) (join ord) (top ord) :=
-  let: Pack _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition tLattice :=
-  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition tDistrLattice :=
   @TDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition totalOrder :=
-  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (topT : T).
 
@@ -2042,7 +2012,7 @@ Definition pack :=
       & phant_id (Total.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
@@ -2103,7 +2073,7 @@ Structure order (phT : phant T) := Pack {
   join : T -> T -> T;
   bottom : T;
   top : T;
-  #[canonical=no] class_ : class_of le lt meet join bottom top;
+  class : class_of le lt meet join bottom top;
 }.
 
 Unset Primitive Projections.
@@ -2119,56 +2089,54 @@ Local Coercion base3 le lt meet join bottom top
 
 Variable (phT : phant T) (ord : order phT).
 
-Definition class :
-  class_of (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) :=
-  let: Pack _ _ _ _ _ _ c as ord' := ord in c.
+Let cls := nosimpl (class ord).
 
-Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) class.
-Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) class.
-Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) class.
+Definition pOrder := @POrder.Pack _ phT (le ord) (lt ord) cls.
+Definition bPOrder := @BPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) cls.
+Definition tPOrder := @TPOrder.Pack _ phT (le ord) (lt ord) (top ord) cls.
 Definition tbPOrder :=
-  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) class.
-Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) class.
+  @TBPOrder.Pack _ phT (le ord) (lt ord) (bottom ord) (top ord) cls.
+Definition meetOrder := @Meet.Pack _ phT (le ord) (lt ord) (meet ord) cls.
 Definition bMeetOrder :=
-  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) class.
+  @BMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) cls.
 Definition tMeetOrder :=
-  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) class.
+  @TMeet.Pack _ phT (le ord) (lt ord) (meet ord) (top ord) cls.
 Definition tbMeetOrder :=
-  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) class.
-Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) class.
+  @TBMeet.Pack _ phT (le ord) (lt ord) (meet ord) (bottom ord) (top ord) cls.
+Definition joinOrder := @Join.Pack _ phT (le ord) (lt ord) (join ord) cls.
 Definition bJoinOrder :=
-  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) class.
+  @BJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) cls.
 Definition tJoinOrder :=
-  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) class.
+  @TJoin.Pack _ phT (le ord) (lt ord) (join ord) (top ord) cls.
 Definition tbJoinOrder :=
-  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) class.
+  @TBJoin.Pack _ phT (le ord) (lt ord) (join ord) (bottom ord) (top ord) cls.
 Definition lattice :=
-  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Lattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bLattice :=
   @BLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tLattice :=
-  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition tbLattice :=
   @TBLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) cls.
 Definition distrLattice :=
-  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @DistrLattice.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bDistrLattice :=
   @BDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tDistrLattice :=
   @TDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 Definition tbDistrLattice :=
   @TBDistrLattice.Pack
-    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) class.
+    _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) (top ord) cls.
 Definition totalOrder :=
-  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) class.
+  @Total.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) cls.
 Definition bTotalOrder :=
-  @BTotal.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) class.
+  @BTotal.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (bottom ord) cls.
 Definition tTotalOrder :=
-  @TTotal.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) class.
+  @TTotal.Pack _ phT (le ord) (lt ord) (meet ord) (join ord) (top ord) cls.
 
 Variable (leT ltT : rel T) (meetT joinT : T -> T -> T) (bottomT topT : T).
 
@@ -2178,7 +2146,7 @@ Definition pack :=
       & phant_id (BTotal.class bord) b =>
   fun (mord : TPOrder.order phT) m
       & phant_id (TPOrder.class mord) (TPOrder.Class (base := b) m) =>
-  @Pack phT leT ltT meetT joinT bottomT topT (Class (base := b) m).
+  @Pack phT leT ltT meetT joinT bottomT topT (nosimpl (Class (base := b) m)).
 
 End ClassDef.
 
