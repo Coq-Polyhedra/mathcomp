@@ -1010,7 +1010,30 @@ Module Order.
 (* STRUCTURES *)
 (**************)
 
-HB.mixin Record IsPOrdered (d : unit) T of HasDecEq T := {
+#[primitive]
+HB.mixin Record IsDualPOrdered (d : unit) T of HasDecEq T := {
+  le       : rel T;
+  lt       : rel T;
+  lt_def   : forall x y, lt x y = (y != x) && le x y;
+  lt_def'  : forall x y, lt y x = (y != x) && le y x; (* dual of lt_def *)
+  le_refl  : reflexive     le;
+  le_anti' : forall x y, le x y -> le y x -> x = y;
+  le_trans : transitive    le;
+}.
+
+(* FIXME *)
+HB.instance Definition _ (d : unit) (T : choiceType)
+  (x : IsDualPOrdered d (@eta Type T)) := Choice.on x.
+
+#[short(type="porderType", pack="POrderType")]
+HB.structure Definition POrder (d : unit) :=
+  { T of Choice T & IsDualPOrdered d T }.
+
+(* FIXME *)
+HB.instance Definition _ (d : unit) (T : choiceType)
+  (x : IsDualPOrdered d (@eta Type T)) : IsDualPOrdered d x := x.
+
+HB.factory Record IsPOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
   lt       : rel T;
   lt_def   : forall x y, lt x y = (y != x) && (le x y);
@@ -1019,17 +1042,18 @@ HB.mixin Record IsPOrdered (d : unit) T of HasDecEq T := {
   le_trans : transitive    le;
 }.
 
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsPOrdered d (@eta Type T)) := Choice.on x.
+HB.builders Context (d : unit) T of IsPOrdered d T.
 
-#[short(type="porderType", pack="POrderType")]
-HB.structure Definition POrder (d : unit) :=
-  { T of Choice T & IsPOrdered d T }.
+Lemma lt_def' x y : lt y x = (y != x) && le y x.
+Proof. by rewrite lt_def eq_sym. Qed.
 
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsPOrdered d (@eta Type T)) : IsPOrdered d x := x.
+Lemma le_anti' x y : le x y -> le y x -> x = y.
+Proof. by move=> lexy leyx; apply/le_anti/andP. Qed.
+
+HB.instance Definition _ := @IsDualPOrdered.Build d T
+  le lt lt_def lt_def' le_refl le_anti' le_trans.
+
+HB.end.
 
 HB.factory Record IsLePOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
