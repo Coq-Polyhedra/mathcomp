@@ -1010,7 +1010,22 @@ Module Order.
 (* STRUCTURES *)
 (**************)
 
-HB.mixin Record IsPOrdered (d : unit) T of HasDecEq T := {
+#[primitive]
+HB.mixin Record IsDualPOrdered (d : unit) T of HasDecEq T := {
+  le       : rel T;
+  lt       : rel T;
+  lt_def   : forall x y, lt x y = (y != x) && le x y;
+  lt_def'  : forall x y, lt y x = (y != x) && le y x; (* dual of lt_def *)
+  le_refl  : reflexive     le;
+  le_anti' : forall x y, le x y -> le y x -> x = y;
+  le_trans : transitive    le;
+}.
+
+#[short(type="porderType", pack="POrderType")]
+HB.structure Definition POrder (d : unit) :=
+  { T of Choice T & IsDualPOrdered d T }.
+
+HB.factory Record IsPOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
   lt       : rel T;
   lt_def   : forall x y, lt x y = (y != x) && (le x y);
@@ -1019,9 +1034,18 @@ HB.mixin Record IsPOrdered (d : unit) T of HasDecEq T := {
   le_trans : transitive    le;
 }.
 
-#[short(type="porderType", pack="POrderType")]
-HB.structure Definition POrder (d : unit) :=
-  { T of Choice T & IsPOrdered d T }.
+HB.builders Context (d : unit) T of IsPOrdered d T.
+
+Lemma lt_def' x y : lt y x = (y != x) && le y x.
+Proof. by rewrite lt_def eq_sym. Qed.
+
+Lemma le_anti' x y : le x y -> le y x -> x = y.
+Proof. by move=> lexy leyx; apply/le_anti/andP. Qed.
+
+HB.instance Definition _ := @IsDualPOrdered.Build d T
+  le lt lt_def lt_def' le_refl le_anti' le_trans.
+
+HB.end.
 
 HB.factory Record IsLePOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
