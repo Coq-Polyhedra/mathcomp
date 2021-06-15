@@ -1010,7 +1010,7 @@ Module Order.
 (* STRUCTURES *)
 (**************)
 
-#[primitive]
+(*#[primitive]*)
 HB.mixin Record IsDualPOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
   lt       : rel T;
@@ -1022,16 +1022,18 @@ HB.mixin Record IsDualPOrdered (d : unit) T of HasDecEq T := {
 }.
 
 (* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsDualPOrdered d (@eta Type T)) := Choice.on x.
+(*HB.instance Definition _ (d : unit) (T : choiceType)
+  (x : IsDualPOrdered d (@eta Type T)) := Choice.on x.*)
 
 #[short(type="porderType", pack="POrderType")]
+(*HB.structure Definition POrder (d : unit) :=
+  { T of Choice T & IsDualPOrdered d T }.*)
 HB.structure Definition POrder (d : unit) :=
-  { T of Choice T & IsDualPOrdered d T }.
+  { T of IsDualPOrdered d T & }.
 
 (* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsDualPOrdered d (@eta Type T)) : IsDualPOrdered d x := x.
+(*HB.instance Definition _ (d : unit) (T : choiceType)
+  (x : IsDualPOrdered d (@eta Type T)) : IsDualPOrdered d x := x.*)
 
 HB.factory Record IsPOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
@@ -1108,11 +1110,12 @@ HB.instance Definition _ := @IsPOrdered.Build d T
 HB.end.
 
 (* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
+(*HB.instance Definition _ (d : unit) (T : choiceType)
   (x : IsLtLePOrdered d (@eta Type T)) := Choice.on x.
 (* FIXME *)
 HB.instance Definition _ (d : unit) (T : choiceType)
   (x : IsLtLePOrdered d (@eta Type T)) : IsLtLePOrdered d x := x.
+ *)
 
 HB.factory Record IsLtPOrdered (d : unit) T of HasDecEq T := {
   lt       : rel T;
@@ -1126,11 +1129,12 @@ HB.instance Definition _ := @IsLtLePOrdered.Build d T
 HB.end.
 
 (* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
+(*HB.instance Definition _ (d : unit) (T : choiceType)
   (x : IsLtPOrdered d (@eta Type T)) := Choice.on x.
 (* FIXME *)
 HB.instance Definition _ (d : unit) (T : choiceType)
   (x : IsLtPOrdered d (@eta Type T)) : IsLtPOrdered d x := x.
+*)
 
 Module POrderExports.
 Arguments le_trans {d s} [_ _ _].
@@ -1303,30 +1307,33 @@ Coercion le_of_leif : leif >-> is_true.
 End POCoercions.
 HB.export POCoercions.
 
-(* HB.mixin Record POrder_IsJoinSemiLattice *)
-(*     d (T : indexed Type) of POrder d T := { *)
-(*   join : T -> T -> T; *)
-(*   joinC : commutative join; *)
-(*   joinA : associative join; *)
-(*   le_defU : forall x y, (x <= y) = (join x y == y); *)
-(* }. *)
-(* #[short(type="joinSemiLatticeType", pack="JoinSemiLatticeType")] *)
-(* HB.structure Definition JoinSemiLattice d := *)
-(*   { T of POrder_IsJoinSemiLattice d T & POrder d T }. *)
+HB.mixin Record POrder_IsJoinSemiLattice
+         d (T : indexed Type) of POrder d T := {
+  join : T -> T -> T;
+  joinC : commutative join;
+  joinA : associative join;
+  le_defU : forall x y, (x <= y) = (join x y == y);
+}.
+#[short(type="joinSemiLatticeType", pack="JoinSemiLatticeType")]
+HB.structure Definition JoinSemiLattice d :=
+  { T of POrder_IsJoinSemiLattice d T & }.
 
-(* HB.mixin Record POrder_IsMeetSemiLattice *)
-(*     d (T : indexed Type) of POrder d T := { *)
-(*   meet : T -> T -> T; *)
-(*   meetC : commutative meet; *)
-(*   meetA : associative meet; *)
-(*   le_def : forall x y, (x <= y) = (meet x y == x); *)
-(* }. *)
-(* #[short(type="meetSemiLatticeType", pack="MeetSemiLatticeType")] *)
-(* HB.structure Definition MeetSemiLattice d := *)
-(*   { T of POrder_IsMeetSemiLattice d T & POrder d T }. *)
+HB.mixin Record POrder_IsMeetSemiLattice
+     d (T : indexed Type) of POrder d T := {
+  meet : T -> T -> T;
+  meetC : commutative meet;
+  meetA : associative meet;
+  le_def : forall x y, (x <= y) = (meet x y == x);
+}.
+#[short(type="meetSemiLatticeType", pack="MeetSemiLatticeType")]
+HB.structure Definition MeetSemiLattice d :=
+  { T of POrder_IsMeetSemiLattice d T & }.
 
-#[key="T"]
-HB.mixin Record POrder_IsLattice d (T : Type) of POrder d T := {
+#[short(type="latticeType", pack="LatticeType")]
+HB.structure Definition Lattice d :=
+  { T of POrder_IsJoinSemiLattice d T & POrder_IsMeetSemiLattice d T & POrder d T }.
+
+HB.factory Record POrder_IsLattice d (T : indexed Type) of POrder d T := {
   meet : T -> T -> T;
   join : T -> T -> T;
   meetC : commutative meet;
@@ -1337,20 +1344,71 @@ HB.mixin Record POrder_IsLattice d (T : Type) of POrder d T := {
   meetKU : forall y x, join x (meet x y) = x;
   leEmeet : forall x y, (x <= y) = (meet x y == x);
 }.
-(* HB.builders Context d T of POrder_IsLattice d T. *)
 
-(* Let le_defU : forall x y, (x <= y) = (join x y == y). *)
-(* Proof. Admitted. *)
+HB.builders Context d T of POrder_IsLattice d T.
 
-(* HB.instance Definition _ := @POrder_IsMeetSemiLattice.Build d T *)
-(*   meet meetC meetA le_def. *)
-(* HB.instance Definition _ := @POrder_IsJoinSemiLattice.Build d T *)
-(*   join joinC joinA le_defU. *)
-(* HB.end. *)
+Lemma le_def : forall x y, (x <= y) = (meet x y == x).
+Proof. Admitted.
 
-#[short(type="latticeType", pack="LatticeType")]
-HB.structure Definition Lattice d :=
-  { T of POrder_IsLattice d T & POrder d T }.
+Lemma le_defU : forall x y, (x <= y) = (join x y == y).
+Proof. Admitted.
+
+HB.instance Definition _ := @POrder_IsMeetSemiLattice.Build d T meet meetC meetA le_def.
+HB.instance Definition _ := @POrder_IsJoinSemiLattice.Build d T join joinC joinA le_defU.
+HB.end.
+
+Section Test.
+
+Variable (d : unit) (T : eqType).
+
+Variable (le : rel T) (lt : rel T).
+Hypothesis (le_refl : reflexive     le) (le_anti : antisymmetric le) (le_trans : transitive    le).
+Hypothesis (lt_def   : forall x y, lt x y = (y != x) && le x y) (lt_def'  : forall x y, lt y x = (y != x) && le y x) (* dual of lt_def *)
+  (le_anti' : forall x y, le x y -> le y x -> x = y).
+
+HB.instance Definition _ := @IsDualPOrdered.Build d T le lt lt_def lt_def' le_refl le_anti' le_trans.
+
+HB.mixin Record IsDualPOrdered (d : unit) T of HasDecEq T := {
+  le       : rel T;
+  lt       : rel T;
+  lt_def   : forall x y, lt x y = (y != x) && le x y;
+  lt_def'  : forall x y, lt y x = (y != x) && le y x; (* dual of lt_def *)
+  le_refl  : reflexive     le;
+  le_anti' : forall x y, le x y -> le y x -> x = y;
+  le_trans : transitive    le;
+}.
+
+HB.factory Record IsLePOrdered (d : unit) T of HasDecEq T := {
+  le       : rel T;
+  le_refl  : reflexive     le;
+  le_anti  : antisymmetric le;
+  le_trans : transitive    le;
+
+
+Variable  meet : T -> T -> T.
+Variable  join : T -> T -> T.
+Hypothesis meetC : commutative meet.
+Hypothesis joinC : commutative join.
+Hypothesis meetA : associative meet.
+Hypothesis joinA : associative join.
+Hypothesis joinKI : forall y x, meet x (join x y) = x.
+Hypothesis meetKU : forall y x, join x (meet x y) = x.
+Hypothesis leEmeet : forall x y, (x <= y) = (meet x y == x).
+Hypothesis le_def : forall x y, (x <= y) = (meet x y == x).
+
+HB.instance Definition _ :=
+  @POrder_IsMeetSemiLattice.Build d T meet meetC meetA le_def. join meetC joinC meetA joinA joinKI meetKU leEmeet.
+
+
+HB.instance Definition _ :=
+  @POrder_IsLattice.Build d T meet join meetC joinC meetA joinA joinKI meetKU leEmeet.
+
+
+End Test.
+
+HB.instance Definition _ :=
+
+
 
 Module LatticeExports.
 Notation "[ 'latticeType' 'of' T 'for' cT ]" := (Lattice.clone _ T cT)
@@ -1418,8 +1476,7 @@ HB.mixin Record HasBottom d (T : Type) of POrder d T := {
   bottom : T;
   le0x : forall x, bottom <= x;
 }.
-(* TODO: Restore when we remove the mathcomp attribute *)
-(* HB.structure Definition BPOrder d := { T of HasBottom d T & POrder d T }. *)
+HB.structure Definition BPOrder d := { T of HasBottom d T & POrder d T }.
 #[short(type="bLatticeType", pack="BLatticeType")]
 HB.structure Definition BLattice d := { T of HasBottom d T & Lattice d T }.
 
@@ -1477,7 +1534,7 @@ HB.mixin Record HasTop d (T : Type) of POrder d T := {
   lex1 : forall x, x <= top;
 }.
 (* TODO: Restore when we remove the mathcomp attribute *)
-(* HB.structure Definition TPOrder d := { T of HasBottom d T & POrder d T }. *)
+HB.structure Definition TPOrder d := { T of HasBottom d T & POrder d T }.
 (* HB.structure Definition TLattice d := { T of HasTop d T & Lattice d T }. *)
 (* HB.structure Definition TBOrder d := { T of HasTop d T & BPOrder d T }. *)
 #[short(type="tbLatticeType", pack="TBLatticeType")]
@@ -1863,7 +1920,7 @@ Definition ge_refl : reflexive ge := lexx.
 Hint Resolve le_refl : core.
 
 Lemma le_anti: antisymmetric (<=%O : rel T).
-Proof. exact: le_anti. Qed.
+Proof. move=> x y /andP[]; exact: le_anti'. Qed.
 
 Lemma ge_anti: antisymmetric (>=%O : rel T).
 Proof. by move=> x y /le_anti. Qed.
