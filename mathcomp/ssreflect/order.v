@@ -1019,17 +1019,9 @@ HB.mixin Record IsPOrdered (d : unit) T of HasDecEq T := {
   le_trans : transitive    le;
 }.
 
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsPOrdered d (@eta Type T)) := Choice.on x.
-
 #[short(type="porderType", pack="POrderType")]
 HB.structure Definition POrder (d : unit) :=
   { T of Choice T & IsPOrdered d T }.
-
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsPOrdered d (@eta Type T)) : IsPOrdered d x := x.
 
 HB.factory Record IsLePOrdered (d : unit) T of HasDecEq T := {
   le       : rel T;
@@ -1043,13 +1035,6 @@ HB.builders Context (d : unit) T of IsLePOrdered d T.
 HB.instance Definition _ := @IsPOrdered.Build d T
   le _ (fun _ _ => erefl) le_refl le_anti le_trans.
 HB.end.
-
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLePOrdered d (@eta Type T)) := Choice.on x.
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLePOrdered d (@eta Type T)) : IsLePOrdered d x := x.
 
 HB.factory Record IsLtLePOrdered (d : unit) T of HasDecEq T := {
   le : rel T;
@@ -1083,13 +1068,6 @@ HB.instance Definition _ := @IsPOrdered.Build d T
 
 HB.end.
 
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLtLePOrdered d (@eta Type T)) := Choice.on x.
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLtLePOrdered d (@eta Type T)) : IsLtLePOrdered d x := x.
-
 HB.factory Record IsLtPOrdered (d : unit) T of HasDecEq T := {
   lt       : rel T;
   lt_irr   : irreflexive lt;
@@ -1100,13 +1078,6 @@ HB.builders Context (d : unit) (T : Type) of IsLtPOrdered d T.
 HB.instance Definition _ := @IsLtLePOrdered.Build d T
   _ lt (fun _ _ => erefl) lt_irr lt_trans.
 HB.end.
-
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLtPOrdered d (@eta Type T)) := Choice.on x.
-(* FIXME *)
-HB.instance Definition _ (d : unit) (T : choiceType)
-  (x : IsLtPOrdered d (@eta Type T)) : IsLtPOrdered d x := x.
 
 Module POrderExports.
 Arguments le_trans {d s} [_ _ _].

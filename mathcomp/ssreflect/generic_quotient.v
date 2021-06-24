@@ -364,11 +364,11 @@ Notation "[ 'SUB' Q 'of' T 'by' %/ ]" :=
 Notation "[ 'SUB' Q 'by' %/ ]" :=
   (SUB.copy Q%type (quot_type Q))
   (at level 0, format "[ 'SUB'  Q  'by'  %/ ]") : form_scope.
-
+(*
 Notation "[ 'subType' Q 'of' T 'by' %/ ]" :=
   (@SubType T _ Q _ _ (@QuotSubType.reprP _ _) (@QuotSubType.qreprK _ _))
   (at level 0, format "[ 'subType'  Q  'of'  T  'by'  %/ ]") : form_scope.
-
+*)
 Notation "[ 'Equality' 'of' Q 'by' <:%/ ]" :=
   (Equality.copy Q%type (quot_type Q))
   (at level 0, format "[ 'Equality'  'of'  Q  'by'  <:%/ ]") : form_scope.
@@ -547,7 +547,8 @@ Definition pi := locked (fun x => EquivQuotient (canon_id x)).
 
 Lemma ereprK : cancel erepr pi.
 Proof.
-by unlock pi; case=> x hx; apply/(@val_inj _ _ [subType for erepr])/eqP.
+pose T := SUB.pack _ _ _ [IsSUB for erepr].
+by unlock pi; case=> x hx; apply/(@val_inj _ _ T)/eqP.
 Qed.
 
 Local Notation encDE := (encModRelE encD).

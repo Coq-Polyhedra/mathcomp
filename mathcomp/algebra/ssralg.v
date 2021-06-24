@@ -744,18 +744,8 @@ HB.mixin Record IsZmodule V := {
   addNr : left_inverse zero opp add
 }.
 
-(* FIXME mixin attribute? fake deps? *)
-#[export]
-HB.instance Definition _ (T : choiceType) (x : IsZmodule (@eta Type T)) :=
-  Choice.on x.
-
 #[short(type="zmodType", pack="ZmodType")]
 HB.structure Definition Zmodule := {V of IsZmodule V & Choice V}.
-
-(* TODO: automate OR NOT *)
-#[export]
-HB.instance Definition _ (T : choiceType) (x : IsZmodule (@eta Type T)) :
-  IsZmodule x := x.
 
 Module ZmodExports.
 Bind Scope ring_scope with Zmodule.sort.
@@ -4346,18 +4336,9 @@ Definition field_axiom (R : unitRingType) := forall x : R, x != 0 -> x \in unit.
 HB.mixin Record IsField R of UnitRing R := {
   fieldP : field_axiom [the unitRingType of R];
 }.
-(* FIXME use fake deps? *)
-#[export]
-HB.instance Definition _ (R : idomainType)
-  (x : IsField (@eta Type R)) := IntegralDomain.on x.
 
 #[mathcomp(axiom="field_axiom"), short(type="fieldType", pack="FieldType")]
 HB.structure Definition Field := { R of IntegralDomain R & IsField R }.
-
-(* FIXME if deps of IsField are adjusted, this becomes unnecessary *)
-#[export]
-HB.instance Definition _ (R : idomainType) (x : IsField (@eta Type R)) :
-  IsField x := x.
 
 Module FieldExports.
 Notation "[ 'fieldType' 'of' T 'for' cT ]" := (Field.clone T cT)
@@ -4593,17 +4574,8 @@ HB.mixin Record Field_IsDec R of UnitRing R := {
   satP : decidable_field_axiom sat;
 }.
 
-(* FIXME: fake deps? *)
-#[export] HB.instance Definition _ (F : fieldType)
-  (x : Field_IsDec (@eta Type F)) := Field.on x.
-
 #[mathcomp(axiom="decidable_field_axiom"), short(type="decFieldType", pack="DecFieldType")]
 HB.structure Definition DecidableField := { F of Field F & Field_IsDec F }.
-
-(* FIXME if deps are fixed, this is unnecessary *)
-#[export]
-HB.instance Definition _ (F : fieldType)
-  (x : Field_IsDec (@eta Type F)) : Field_IsDec x := x.
 
 Module DecFieldExports.
 Notation "[ 'decFieldType' 'of' T 'for' cT ]" := (DecidableField.clone T cT)

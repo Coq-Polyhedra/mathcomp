@@ -216,10 +216,6 @@ HB.mixin Record IsMulBaseGroup G := {
   invMg_subproof : {morph invg_subdef  : x y / mulg_subdef  x y >-> mulg_subdef  y x}
 }.
 
-(* FIXME: fake def *)
-HB.instance Definition _ (T : finType) (x : IsMulBaseGroup (@eta Type T)) :=
-  Finite.on x.
-
 (* We want to use sort as a coercion class, both to infer         *)
 (* argument scopes properly, and to allow groups and cosets to    *)
 (* coerce to the base group of group subsets.                     *)
@@ -241,9 +237,6 @@ HB.instance Definition _ (T : finType) (x : IsMulBaseGroup (@eta Type T)) :=
 
 #[arg_sort, short(type="baseFinGroupType", pack="BaseFinGroupType")]
 HB.structure Definition BaseFinGroup := { G of IsMulBaseGroup G & Finite G }.
-
-HB.instance Definition _ (T : finType) (x : IsMulBaseGroup (@eta Type T)) :
-  IsMulBaseGroup x := x.
 
 Module BaseFinGroupExports.
 Bind Scope group_scope with BaseFinGroup.arg_sort.
@@ -1667,8 +1660,8 @@ Qed.
 
 Inductive subg_of : predArgType := Subg x & x \in G.
 Definition sgval u := let: Subg x _ := u in x.
-HB.instance Definition _ : SUB _ _ subg_of :=
-  SUB.class [subType for sgval].
+Definition subg_of_SUB := Eval hnf in [IsSUB for sgval].
+HB.instance Definition _ := subg_of_SUB.
 HB.instance Definition _ := [Finite of subg_of by <:].
 
 Lemma subgP u : sgval u \in G.

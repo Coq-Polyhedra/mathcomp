@@ -251,16 +251,9 @@ HB.mixin Record HasChoice T := Mixin {
   choice_complete_subdef {P : pred T} : (exists x, P x) -> exists n, find_subdef P n;
   choice_extensional_subdef {P Q : pred T} : P =1 Q -> find_subdef P =1 find_subdef Q
 }.
-(* FIXME mixin attribute? fake deps? *)
-HB.instance Definition _ (T : eqType) (x : HasChoice (@eta Type T)) :=
-  Equality.on x.
 
 #[short(type="choiceType", pack="ChoiceType")]
 HB.structure Definition Choice := { T of HasChoice T & HasDecEq T}.
-
-(* FIXME: if deps coincide with the structure, this is not needed *)
-HB.instance Definition _ (T : eqType) (x : HasChoice (@eta Type T)) :
-  HasChoice x := x.
 
 Module Export ChoiceNamespace.
   Module Choice.
@@ -508,17 +501,8 @@ HB.mixin Record IsCountable (T : Type) : Type := {
 }.
 Arguments IsCountable.axioms_ T%type_scope.
 
-(* FIXME mixin attribute? fake deps? *)
-HB.instance Definition _ (T : choiceType) (x : IsCountable (@eta Type T)) :=
-  Choice.on x.
-
 #[short(type="countType", pack="CountType")]
 HB.structure Definition Countable := { T of Choice T & IsCountable T }.
-
-(* FIXME: if deps coincide with the structure, this is not needed *)
-HB.instance Definition _ (T : choiceType) (x : IsCountable (@eta Type T)) :
-  IsCountable x := x.
-
 
 Notation "[ 'IsCountable' 'of' T ]" := (Countable.on T : IsCountable T)
   (at level 0, format "[ 'IsCountable'  'of'  T ]") : form_scope.
