@@ -677,10 +677,10 @@ rewrite (bigD1 ord_max) //= [n %| m](contraNF _ Z'u) => [|n_dv_m]; last first.
 rewrite divr1 dvdC_mulr //; apply/rpred_prod => d /andP[/Zaq-Zaqd _].
 have [-> | nz_aqd] := eqVneq (aq d) 0; first by rewrite mul0r.
 by rewrite -[aq d]expr1 -exprB ?leq_b1 ?unitfE ?rpredX.
-Qed.
+Qed. 
 
 Definition FinDomainFieldType : finFieldType :=
- let R' := @eta Type R in
+ let R' := FinUnitRingType R in
  let cC := GRing.Ring_HasCommutativeMul.Build R' finDomain_mulrC in
  let cR := ComUnitRingType R' cC in
  let iC := GRing.ComUnitRing_IsIntegral.Build cR domR in

@@ -294,7 +294,7 @@ Proof. exact: s2valP (tagged Fundamental_Theorem_of_Algebraics). Qed.
 Fact conjL_nt : ~ conjL =1 id.
 Proof. exact: s2valP' (tagged Fundamental_Theorem_of_Algebraics). Qed.
 
-Definition L' : Type := eta L.
+Definition L' : Type := ClosedFieldType L.
 HB.instance Definition _ := GRing.ClosedField.on L'.
 HB.instance Definition _ := IsComplex.Build L' conjL_K conjL_nt.
 
