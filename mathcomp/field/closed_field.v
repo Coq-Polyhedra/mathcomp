@@ -795,7 +795,8 @@ have eqKtrans : transitive eqKrep.
   do [rewrite -toEtrans ?le_max // -maxnA => lez2m] in lez3m *.
   by rewrite (toEtrans (maxn (tag z2) (tag z3))) // eq_z23 -toEtrans.
 pose K := {eq_quot EquivRel _ eqKrefl eqKsym eqKtrans}%qT.
-pose Kcount := CountType K (CanCountMixin reprK) (CanChoiceMixin reprK) (CanEqMixin reprK).
+pose cntK : IsCountable K := CanCountMixin reprK.
+pose Kcount := CountType K cntK.
 pose EtoKrep i (x : E i) : K := \pi%qT (Tagged E x).
 have [EtoK piEtoK]: {EtoK | forall i, EtoKrep i =1 EtoK i} by exists EtoKrep.
 pose FtoK := EtoK 0%N; rewrite {}/EtoKrep in piEtoK.
@@ -901,7 +902,7 @@ have Kclosed: GRing.closed_field_axiom Kfield.
   by rewrite -if_neg neq_ltn lemk.
 suffices{Kclosed} algF_K: {FtoK : {rmorphism F -> Kfield} | integralRange FtoK}.
   pose Kcc := Field_IsAlgClosed.Build Kfield Kclosed.
-  by exists (CountClosedFieldType K Kcc).
+  by exists (CountClosedFieldType Kfield Kcc).
 exists (EtoKM 0%N) => /= z; have [i [{}z ->]] := KtoE z.
 suffices{z} /(_ z)[p mon_p]: integralRange (toE 0%N i isT).
   by rewrite -(fmorph_root (EtoKM i)) -map_poly_comp toEtoKp; exists p.
