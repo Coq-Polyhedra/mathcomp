@@ -303,6 +303,9 @@ Proof. by elim: s1 => //= x s1 ->. Qed.
 Lemma size_cat s1 s2 : size (s1 ++ s2) = size s1 + size s2.
 Proof. by elim: s1 => //= x s1 ->. Qed.
 
+Lemma cat_nilp s1 s2 : nilp (s1 ++ s2) = nilp s1 && nilp s2.
+Proof. by case: s1. Qed.
+
 (* last, belast, rcons, and last induction. *)
 
 Fixpoint rcons s z := if s is x :: s' then x :: rcons s' z else [:: z].
@@ -875,6 +878,9 @@ Proof. by rewrite -cats1 -catrevE. Qed.
 Lemma size_rev s : size (rev s) = size s.
 Proof. by elim: s => // x s IHs; rewrite rev_cons size_rcons IHs. Qed.
 
+Lemma rev_nilp s : nilp (rev s) = nilp s.
+Proof. by move: s (rev s) (size_rev s) => [|? ?] []. Qed.
+
 Lemma rev_cat s t : rev (s ++ t) = rev t ++ rev s.
 Proof. by rewrite -catrev_catr -catrev_catl. Qed.
 
@@ -1342,6 +1348,9 @@ Lemma undup_rcons s x : undup (rcons s x) = rcons [seq y <- undup s | y != x] x.
 Proof.
 by rewrite -!cats1 undup_cat; congr cat; apply: eq_filter => y; rewrite inE.
 Qed.
+
+Lemma count_undup s p : count p (undup s) <= count p s.
+Proof. by rewrite -!size_filter filter_undup size_undup. Qed.
 
 (* Lookup *)
 
@@ -1833,6 +1842,14 @@ suffices: perm_eq s (undup s) by move/perm_uniq->.
 by apply/allP=> x _; apply/eqP; rewrite (count_uniq_mem x Uus) mem_undup.
 Qed.
 
+Lemma eq_count_undup a s1 s2 :
+  {in a, s1 =i s2} -> count a (undup s1) = count a (undup s2).
+Proof.
+move=> s1_eq_s2; rewrite -!size_filter !filter_undup.
+apply/perm_size/perm_undup => x.
+by rewrite !mem_filter; case: (boolP (a x)) => //= /s1_eq_s2.
+Qed.
+
 Lemma catCA_perm_ind P :
     (forall s1 s2 s3, P (s1 ++ s2 ++ s3) -> P (s2 ++ s1 ++ s3)) ->
   (forall s1 s2, perm_eq s1 s2 -> P s1 -> P s2).
@@ -1905,12 +1922,18 @@ rewrite size_rev size_drop -minnE minnC leq_min ltnn /m.
 by have [_|/eqnP->] := ltnP; rewrite ?subnn take0 cats0.
 Qed.
 
+Lemma rev_take s : rev (take n0 s) = drop (size s - n0) (rev s).
+Proof. by rewrite -[s in take _ s]revK take_rev revK size_rev. Qed.
+
 Lemma drop_rev s : drop n0 (rev s) = rev (take (size s - n0) s).
 Proof.
 set m := _ - n0; rewrite -[s in LHS](cat_take_drop m) rev_cat drop_cat.
 rewrite size_rev size_drop -minnE minnC leq_min ltnn /m.
 by have [_|/eqnP->] := ltnP; rewrite ?take0 // subnn drop0.
 Qed.
+
+Lemma rev_drop s : rev (drop n0 s) = take (size s - n0) (rev s).
+Proof. by rewrite -[s in drop _ s]revK drop_rev revK size_rev. Qed.
 
 Lemma rev_rotr s : rev (rotr n0 s) = rot n0 (rev s).
 Proof. by rewrite rev_cat -take_rev -drop_rev. Qed.
@@ -2046,6 +2069,13 @@ exists (take (size s) m ++ nseq (size s - size m) false).
   by elim: s m => [|x s IHs] [|b m] //=; rewrite (size_nseq, IHs).
 by elim: s m => [|x s IHs] [|b m] //=; rewrite (mask_false, IHs).
 Qed.
+
+Lemma takeEmask i s : take i s = mask (nseq i true) s.
+Proof. by elim: i s => [s|i IHi []// ? ?]; rewrite ?take0 //= IHi. Qed.
+
+Lemma dropEmask i s :
+  drop i s = mask (nseq i false ++ nseq (size s - i) true) s.
+Proof. by elim: i s => [s|? ? []//]; rewrite drop0/= mask_true// subn0. Qed.
 
 End Mask.
 Arguments mask _ !_ !_.
@@ -2743,6 +2773,24 @@ Proof.
 by elim: k m n => [|k IHk] m [|n] //=; rewrite ?addn0 // IHk addnS subSS.
 Qed.
 
+Lemma filter_iota_ltn m n j : j <= n ->
+  [seq i <- iota m n | i < m + j] = iota m j.
+Proof.
+elim: n m j => [m j|n IHn m [|j] jlen]; first by rewrite leqn0 => /eqP ->.
+  rewrite (@eq_in_filter _ _ pred0) ?filter_pred0// => i.
+  by rewrite addn0 ltnNge mem_iota => /andP[->].
+by rewrite /= addnS leq_addr -addSn IHn.
+Qed.
+
+Lemma filter_iota_leq n m j : j < n ->
+  [seq i <- iota m n | i <= m + j] = iota m j.+1.
+Proof.
+elim: n m j => [//|n IHn] m [|j] jlen /=; rewrite leq_addr.
+  rewrite (@eq_in_filter _ _ pred0) ?filter_pred0// => i.
+  by rewrite addn0 leqNgt mem_iota => /andP[->].
+by rewrite addnS -addSn IHn -1?ltnS.
+Qed.
+
 (* Making a sequence of a specific length, using indexes to compute items. *)
 
 Section MakeSeq.
@@ -2770,6 +2818,20 @@ Variant mkseq_spec s : seq T -> Type :=
 
 Lemma mkseqP s : mkseq_spec s s.
 Proof. by rewrite -[s]mkseq_nth; constructor. Qed.
+
+Lemma map_nth_iota0 s i :
+  i <= size s -> [seq nth x0 s j | j <- iota 0 i] = take i s.
+Proof.
+by move=> ile; rewrite -[s in RHS]mkseq_nth -map_take take_iota (minn_idPl _).
+Qed.
+
+Lemma map_nth_iota s i j : j <= size s - i ->
+  [seq nth x0 s k | k <- iota i j] = take j (drop i s).
+Proof.
+elim: i => [|i IH] in s j *; first by rewrite subn0 drop0 => /map_nth_iota0->.
+case: s => [|x s /IH<-]; first by rewrite leqn0 => /eqP->.
+by rewrite -add1n iotaDl -map_comp.
+Qed.
 
 End MakeSeq.
 
@@ -3618,6 +3680,14 @@ Lemma allrelP {T S : eqType} {r : T -> S -> bool} {xs ys} :
   reflect {in xs & ys, forall x y, r x y} (allrel r xs ys).
 Proof. by rewrite allrel_allpairsE; exact: all_allpairsP. Qed.
 
+Lemma allrelT {T S : Type} (xs : seq T) (ys : seq S) :
+  allrel (fun _ _ => true) xs ys = true.
+Proof. by elim: xs => //= ? ?; rewrite allrel_consl all_predT. Qed.
+
+Lemma allrel_relI {T S : Type} (r r' : T -> S -> bool) xs ys :
+  allrel (fun x y => r x y && r' x y) xs ys = allrel r xs ys && allrel r' xs ys.
+Proof. by rewrite -all_predI; apply: eq_all => ?; rewrite /= -all_predI. Qed.
+
 Section All2Rel.
 
 Variable (T : nonPropType) (r : rel T).
@@ -3725,6 +3795,10 @@ Proof. by move=> rr' xs; apply/eq_in_pairwise/all_predT. Qed.
 Lemma pairwise_map {T T' : Type} (f : T' -> T) (r : rel T) xs :
   pairwise r (map f xs) = pairwise (relpre f r) xs.
 Proof. by elim: xs => //= x xs ->; rewrite all_map. Qed.
+
+Lemma pairwise_relI {T : Type} (r r' : rel T) (s : seq T) :
+  pairwise [rel x y | r x y && r' x y] s = pairwise r s && pairwise r' s.
+Proof. by elim: s => //= x s ->; rewrite andbACA all_predI. Qed.
 
 Section EqPairwise.
 
