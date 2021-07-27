@@ -2121,9 +2121,6 @@ End DualPOrder.
 HB.instance Definition _ {disp : unit} (T : finPOrderType disp) :=
   FinPOrder.on T^d.
 
-(* FIXME: for some reason, the canonical tPOrderType instance of T^d has to   *)
-(* be declared in the context where T^d has no canonical bPOrderType instance.*)
-(*
 Section DualBPOrder.
 
 Context {disp : unit} (T : tPOrderType disp).
@@ -2143,56 +2140,18 @@ HB.instance Definition _ := HasTop.Build (dual_display disp) T^d le0x.
 Lemma topEdual : (dual_top : T^d) = 0 :> T. Proof. by []. Qed.
 
 End DualTPOrder.
-*)
 
-Module DualBPOrder.
-
-Section DualBPOrder.
-
-Context {disp : unit} (T : tPOrderType disp).
-
-HB.instance Definition _ := HasBottom.Build (dual_display disp) T^d lex1.
-
-Lemma botEdual : (dual_bottom : T^d) = 1 :> T. Proof. by []. Qed.
-
-End DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : finTPOrderType disp) :=
-  FinPOrder.on T^d.
-
-End DualBPOrder.
-
-Module DualTPOrder.
-
-Section DualTPOrder.
-
-Context {disp : unit} (T : bPOrderType disp).
-
-HB.instance Definition _ := HasTop.Build (dual_display disp) T^d le0x.
-
-Lemma topEdual : (dual_top : T^d) = 0 :> T. Proof. by []. Qed.
-
-End DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : finBPOrderType disp) :=
-  FinPOrder.on T^d.
-
-End DualTPOrder.
-
-Module DualTBPOrder.
-
-Import DualTPOrder.
-Import DualBPOrder.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : finTPOrderType disp) := *)
+(*   FinPOrder.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : finBPOrderType disp) := *)
+(*   FinPOrder.on T^d. *)
 
 HB.instance Definition _ {disp : unit} (T : tbPOrderType disp) :=
   TBPOrder.on T^d.
 
 HB.instance Definition _ {disp : unit} (T : finTBPOrderType disp) :=
   FinPOrder.on T^d.
-
-End DualTBPOrder.
-
-Module DualMeetSemilattice.
 
 Section DualMeetSemilattice.
 
@@ -2208,33 +2167,15 @@ End DualMeetSemilattice.
 HB.instance Definition _ {disp : unit} (T : finJoinSemilatticeType disp) :=
   MeetSemilattice.on T^d.
 
-Section DualBMeetSemilattice.
-
-Import DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : tJoinSemilatticeType disp) :=
-  MeetSemilattice.on T^d.
-
-HB.instance Definition _ {disp : unit} (T : finTJoinSemilatticeType disp) :=
-  MeetSemilattice.on T^d.
-
-End DualBMeetSemilattice.
-
-Section DualBMeetSemilattice.
-
-Import DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : bJoinSemilatticeType disp) :=
-  MeetSemilattice.on T^d.
-
-HB.instance Definition _ {disp : unit} (T : tbJoinSemilatticeType disp) :=
-  MeetSemilattice.on T^d.
-
-End DualBMeetSemilattice.
-
-End DualMeetSemilattice.
-
-Module DualJoinSemilattice.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : tJoinSemilatticeType disp) := *)
+(*   MeetSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : finTJoinSemilatticeType disp) := *)
+(*   MeetSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : bJoinSemilatticeType disp) := *)
+(*   MeetSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : tbJoinSemilatticeType disp) := *)
+(*   MeetSemilattice.on T^d. *)
 
 Section DualJoinSemilattice.
 
@@ -2247,40 +2188,17 @@ Lemma joinEdual x y : ((x : T^d) `|^d` y) = (x `&` y). Proof. by []. Qed.
 
 End DualJoinSemilattice.
 
-HB.instance Definition _ {disp : unit} (T : finMeetSemilatticeType disp) :=
-  JoinSemilattice.on T^d.
-
-Section DualBJoinSemilattice.
-
-Import DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : tMeetSemilatticeType disp) :=
-  JoinSemilattice.on T^d.
-
-End DualBJoinSemilattice.
-
-Section DualBJoinSemilattice.
-
-Import DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : bMeetSemilatticeType disp) :=
-  JoinSemilattice.on T^d.
-
-HB.instance Definition _ {disp : unit} (T : finBMeetSemilatticeType disp) :=
-  JoinSemilattice.on T^d.
-
-HB.instance Definition _ {disp : unit} (T : tbMeetSemilatticeType disp) :=
-  JoinSemilattice.on T^d.
-
-End DualBJoinSemilattice.
-
-End DualJoinSemilattice.
-
-Module DualLattice.
-Section DualLattice.
-
-Import DualMeetSemilattice.
-Import DualJoinSemilattice.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : finMeetSemilatticeType disp) := *)
+(*   JoinSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : tMeetSemilatticeType disp) := *)
+(*   JoinSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : bMeetSemilatticeType disp) := *)
+(*   JoinSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : finBMeetSemilatticeType disp) := *)
+(*   JoinSemilattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : tbMeetSemilatticeType disp) := *)
+(*   JoinSemilattice.on T^d. *)
 
 HB.instance Definition _ {disp : unit} (T : latticeType disp) :=
   Lattice.on T^d.
@@ -2288,39 +2206,11 @@ HB.instance Definition _ {disp : unit} (T : latticeType disp) :=
 HB.instance Definition _ {disp : unit} (T : finLatticeType disp) :=
   Lattice.on T^d.
 
-End DualLattice.
-End DualLattice.
-
-Module DualBLattice.
-Section DualBLattice.
-
-Import DualLattice.
-Import DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : tLatticeType disp) :=
-  Lattice.on T^d.
-
-End DualBLattice.
-End DualBLattice.
-
-Module DualTLattice.
-Section DualTLattice.
-
-Import DualLattice.
-Import DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : bLatticeType disp) :=
-  Lattice.on T^d.
-
-End DualTLattice.
-End DualTLattice.
-
-Module DualTBLattice.
-Section DualTBLattice.
-
-Import DualLattice.
-Import DualTPOrder.
-Import DualBPOrder.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : tLatticeType disp) := *)
+(*   Lattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : bLatticeType disp) := *)
+(*   Lattice.on T^d. *)
 
 HB.instance Definition _ {disp : unit} (T : tbLatticeType disp) :=
   Lattice.on T^d.
@@ -2328,54 +2218,17 @@ HB.instance Definition _ {disp : unit} (T : tbLatticeType disp) :=
 HB.instance Definition _ {disp : unit} (T : finTBLatticeType disp) :=
   Lattice.on T^d.
 
-End DualTBLattice.
-End DualTBLattice.
-
-Module DualDistrLattice.
-Section DualDistrLattice.
-
-Import DualMeetSemilattice.
-Import DualJoinSemilattice.
-
 HB.instance Definition _ {disp : unit} (T : distrLatticeType disp) :=
   Lattice_IsDistributive.Build (dual_display disp) T^d joinIl meetUl.
 
 HB.instance Definition _ {disp : unit} (T : finDistrLatticeType disp) :=
   DistrLattice.on T^d.
 
-End DualDistrLattice.
-End DualDistrLattice.
-
-Module DualBDistrLattice.
-Section DualBDistrLattice.
-
-Import DualDistrLattice.
-Import DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : tDistrLatticeType disp) :=
-  DistrLattice.on T^d.
-
-End DualBDistrLattice.
-End DualBDistrLattice.
-
-Module DualTDistrLattice.
-Section DualTDistrLattice.
-
-Import DualDistrLattice.
-Import DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : bDistrLatticeType disp) :=
-  DistrLattice.on T^d.
-
-End DualTDistrLattice.
-End DualTDistrLattice.
-
-Module DualTBDistrLattice.
-Section DualTBDistrLattice.
-
-Import DualDistrLattice.
-Import DualTPOrder.
-Import DualBPOrder.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : tDistrLatticeType disp) := *)
+(*   DistrLattice.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : bDistrLatticeType disp) := *)
+(*   DistrLattice.on T^d. *)
 
 HB.instance Definition _ {disp : unit} (T : tbDistrLatticeType disp) :=
   DistrLattice.on T^d.
@@ -2383,77 +2236,20 @@ HB.instance Definition _ {disp : unit} (T : tbDistrLatticeType disp) :=
 HB.instance Definition _ {disp : unit} (T : finTBDistrLatticeType disp) :=
   DistrLattice.on T^d.
 
-End DualTBDistrLattice.
-End DualTBDistrLattice.
-
-Module DualTotal.
-Section DualTotal.
-
-Import DualDistrLattice.
-
 HB.instance Definition _ {disp : unit} (T : orderType disp) :=
   DistrLattice_IsTotal.Build (dual_display disp) T^d (fun x y => le_total y x).
 
-End DualTotal.
-End DualTotal.
-
-Module DualBTotal.
-Section DualBTotal.
-
-Import DualTotal.
-Import DualBPOrder.
-
-HB.instance Definition _ {disp : unit} (T : tOrderType disp) :=
-  Total.on T^d.
-
-End DualBTotal.
-End DualBTotal.
-
-Module DualTTotal.
-Section DualTTotal.
-
-Import DualTotal.
-Import DualTPOrder.
-
-HB.instance Definition _ {disp : unit} (T : bOrderType disp) :=
-  Total.on T^d.
-
-End DualTTotal.
-End DualTTotal.
-
-Module DualTBTotal.
-Section DualTBTotal.
-
-Import DualTotal.
-Import DualTPOrder.
-Import DualBPOrder.
+(* FIXME *)
+(* HB.instance Definition _ {disp : unit} (T : tOrderType disp) := *)
+(*   Total.on T^d. *)
+(* HB.instance Definition _ {disp : unit} (T : bOrderType disp) := *)
+(*   Total.on T^d. *)
 
 HB.instance Definition _ {disp : unit} (T : tbOrderType disp) :=
   Total.on T^d.
 
 HB.instance Definition _ {disp : unit} (T : finTBOrderType disp) :=
   Total.on T^d.
-
-End DualTBTotal.
-End DualTBTotal.
-
-HB.export DualBPOrder.
-HB.export DualTPOrder.
-HB.export DualTBPOrder.
-HB.export DualMeetSemilattice.
-HB.export DualJoinSemilattice.
-HB.export DualLattice.
-HB.export DualBLattice.
-HB.export DualTLattice.
-HB.export DualTBLattice.
-HB.export DualDistrLattice.
-HB.export DualBDistrLattice.
-HB.export DualTDistrLattice.
-HB.export DualTBDistrLattice.
-HB.export DualTotal.
-HB.export DualBTotal.
-HB.export DualTTotal.
-HB.export DualTBTotal.
 
 End DualOrder.
 
