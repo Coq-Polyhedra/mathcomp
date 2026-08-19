@@ -1144,8 +1144,9 @@ have: #|[predC [:: x; y; z; t; u]]| !=0.
   rewrite -lt0n  -(ltn_add2l #|[:: x; y; z; t; u]|) hcard5 addn0.
   by apply: (leq_ltn_trans (card_size [:: x; y; z; t; u])).
 case/existsP => v; rewrite inE (mem_cat _ [:: _; _; _; _]) => /norP[Hv Huv].
-exists v; rewrite (cat_uniq [:: x; y; z; t]) Uxt andTb.
-by rewrite -rev_uniq /= negb_or Hu orbF Hv Huv.
+exists v; rewrite (cat_uniq [:: x; y; z; t]) Uxt andTb -rev_uniq /= orbF.
+rewrite orbF in Huv.
+by rewrite negb_or Hu /= inE negb_or Hv /= andbT -negb_or -mem_cat Huv.
 Qed.
 
 Lemma card_n4 : forall x y z t : cube, uniq [:: x; y; z; t] ->
