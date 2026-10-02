@@ -13,7 +13,7 @@ jobs:
       - uses: coq-community/docker-coq-action@v1
         with:
           coq_version: '8.20.1'
-          ocaml_version: '4.14-flambda'
+          ocaml_version: '4.14.2-flambda'
           custom_script: |
             startGroup "Build the ssreflect, fingroup and algebra packages"
               sudo chown -R coq:coq .
